@@ -1,0 +1,8 @@
+
+*.DS_Store
+*/slprj/*
+*_cache*
+*/video/*.png
+*.mp4
+*.slxc
+*.mat
