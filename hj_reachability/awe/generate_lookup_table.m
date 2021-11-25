@@ -5,7 +5,7 @@ if nargin < 5
     extraArgs = [];
 end
    
-if isfield(extraArgs, 'newgrid')
+if isfield(extraArgs, 'newgrid')  && size(data, g.dim+1) == 1
     data = regrid(data, g, extraArgs.newgrid);
     g = extraArgs.newgrid;
 end

@@ -20,13 +20,16 @@ params.direction = -1;
 
 Ft_max = 1865;
 safety_controller = true;
+turbulence = false;
 
 % Load data
 currentFile = mfilename( 'fullpath' );
 [pathstr,~,~] = fileparts( currentFile );
  
-load([pathstr, '/../HJReachability/awe/tables.mat'])
+load([pathstr, '/../hj_reachability/awe/tables.mat'])
  
+random_seed = [ 24335       17059       17670        1747]; %random_seed_mat(idx,:); 
+save('random_seed.mat', 'random_seed'); 
 %% Ready to go...
 idx =3;  
 simInit.perturbed_aero_flag = 0;

@@ -33,7 +33,7 @@ if ~iscell(u)
 end
 
 if nargin < 5
-    d = 0;
+    d = {0; 0; 0; 0};
 end
 %% Define states and inputs (remove this step later for speed up)
 h_tau    = x{3};
@@ -87,7 +87,10 @@ delta_r = 0;
 
 % Replace with disturbance later on
 xi = obj.ENVMT.windDirection_rad;
-v_w_O = obj.v_w_O; % Should be replaced later
+if obj.v0 ~= 1
+    warning('wind shear model does not use normalisation')
+end
+v_w_O = wind_shear(h_tau .* sin(lat) ,xi, obj.base_windspeed);
 %% Define rotation matrix
 M_AbarA = {1,0,0; 
            0, cos(mu_a), -sin(mu_a); 
@@ -142,6 +145,8 @@ if num || (isempty(obj.s_dot) ||isempty(obj.sigma_dot) ||isempty(obj.long_dot) |
     v_k_W = mult_cellMatrix(M_WO,v_k_O); 
 
     v_k_tau = mult_cellMatrix(M_tauW,v_k_W);
+    
+    v_k_W = add_cellMatrix(v_k_W, {d{2}; d{3}; d{4}});
 
     obj.long_dot = (v_k_tau{2})./( abs(h_tau).*cos(lat));
     obj.lat_dot = (v_k_tau{1})./abs(h_tau);
@@ -253,7 +258,7 @@ else
     F_rest = obj.F_rest;
 end
 %tether_diff_dot = cell2mat(obj.final_seg_diff_dot) - l_s_dot;
-tether_diff_dot = d;
+tether_diff_dot = d{1};
 if obj.ignoreTetherDiff
     tether_diff_dot = 0;
 end

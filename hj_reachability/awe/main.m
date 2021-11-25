@@ -37,7 +37,7 @@ initialState = [s, sigma, h_tau, Va, chi_a, gamma_a, tether_diff]';
 %% Grid 
 %                long,    lat,   h_tau,     Va,     chi_a,    gamma_a,  tether_diff (not normalised)
 N        = [       31;   7;       7;      9;        10;         11;     9];
-N        = [       3;   3;       3;      3;        3;         3;     3];
+%N        = [        3;   3;       3;      3;        3;         3;     3];
 grid_min = [     0/a0; -45;  200/h0;  20/v0;    -pi/a0;   -pi/3/a0; -1e-3]; 
 grid_max = [  2*pi/a0;  45;  600/h0;  40/v0;     pi/a0;    pi/3/a0;  7e-3];
 pdDims   = [1 5];

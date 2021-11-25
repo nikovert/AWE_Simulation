@@ -23,14 +23,14 @@ if dim > 3 && dim < 7
     uL = dynSys.optCtrl(t, g.xs, derivMin, schemeData.uMode);
 
     %% Compute disturbance
-    dU = 0;
-    dL = 0;
+    dU = {0; 0; 0; 0};
+    dL = {0; 0; 0; 0};
 
     %% Compute alpha
     dxUU = dynSys.dynamics(t, schemeData.grid.xs, uU, dU);
     dxLL = dynSys.dynamics(t, schemeData.grid.xs, uL, dL);
     alpha = max(abs(dxUU{dim}), abs(dxLL{dim}));
-elseif dim == 7
+elseif dim == 7 || dim < 4
     uU = {0;0};
     uL = {0;0};
     dU = obj.optDstb(t, schemeData.grid.xs, derivMax, schemeData.dMode);
