@@ -20,7 +20,11 @@ params.direction = -1;
 
 Ft_max = 1865;
 safety_controller = true;
-turbulence = false;
+
+turbulence = true;
+if turbulence
+    params.Ft_set_traction = 1500;
+end
 
 % Load data
 currentFile = mfilename( 'fullpath' );
