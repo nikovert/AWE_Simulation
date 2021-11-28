@@ -11,7 +11,8 @@ classdef AWE_3DOF < DynSys
         
         F_T_max         % maximum tether force before rupture
         max_tether_diff_dot = 0.005;  % - max reel-out/in speed
-        
+        d_wind_max = 4; % max wind turbulence velocity
+
         % To be replaced later on
         v_w_O
         

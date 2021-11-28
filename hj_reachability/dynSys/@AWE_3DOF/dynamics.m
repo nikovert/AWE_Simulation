@@ -20,7 +20,6 @@ function [dx, F_rest, max_F_tether] = dynamics(obj, ~, x, u, d)
 % obj.ENVMT     - environmental variable
 % obj.AIRCRAFT  - Aircarft variables
 %
-%   vel_W_W_mat
 
 num = false;
 if ~iscell(x)
@@ -143,11 +142,10 @@ if num || (isempty(obj.s_dot) ||isempty(obj.sigma_dot) ||isempty(obj.long_dot) |
     v_a_O = mult_cellMatrix(M_OAbar,{va;0;0});
     v_k_O = add_cellMatrix(v_a_O, v_w_O); 
     v_k_W = mult_cellMatrix(M_WO,v_k_O); 
+    v_k_W = add_cellMatrix(v_k_W, {d{2}; d{3}; d{4}});
 
     v_k_tau = mult_cellMatrix(M_tauW,v_k_W);
     
-    v_k_W = add_cellMatrix(v_k_W, {d{2}; d{3}; d{4}});
-
     obj.long_dot = (v_k_tau{2})./( abs(h_tau).*cos(lat));
     obj.lat_dot = (v_k_tau{1})./abs(h_tau);
     obj.h_tau_dot = -(v_k_tau{3});

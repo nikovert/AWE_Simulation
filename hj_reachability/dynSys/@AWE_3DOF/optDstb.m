@@ -27,7 +27,7 @@ sigma    = y{2};
 h_tau    = y{3};
 extraArgs.direction = direction;
 [long, lat, ~, ~, t_W, t_rot_W] = getLongLat(s, sigma, obj.h0 * h_tau, extraArgs);
-d_wind_max = 3;
+d_wind_max = obj.d_wind_max;
 
 d2 = -sign(deriv{1} .* 2*pi/945 .* t_W{1}./(direction * norm_cellVec(t_W))  + ...
     deriv{2} .* t_rot_W{1}./(direction * norm_cellVec(t_rot_W)) + ...
