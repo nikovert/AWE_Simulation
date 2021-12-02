@@ -49,10 +49,7 @@ end
 if ~isempty(obj.Lem)
     extraArgs.Lem = obj.Lem;
 end
-        
-% if direction == -1
-%    warning('direction = -1 not tested') 
-% end
+
 extraArgs.direction = direction;
 
 if obj.LongLatState
@@ -123,7 +120,7 @@ Cz_deltaE  = obj.AIRCRAFT.Cz_deltaE_0 + obj.AIRCRAFT.Cz_deltaE_alpha * alpha + o
 %Cz = Cz_0 + Cz_q*obj.AIRCRAFT.c*q./(2*va*obj.v0) + Cz_deltaE*delta_e; 
 Cz = Cz_0 + Cz_deltaE*delta_e; 
 %% Translation Dynamics 
-if num || (isempty(obj.s_dot) ||isempty(obj.sigma_dot) ||isempty(obj.long_dot) || isempty(obj.lat_dot) || isempty(obj.h_tau_dot))
+% if num || (isempty(obj.s_dot) ||isempty(obj.sigma_dot) ||isempty(obj.long_dot) || isempty(obj.lat_dot) || isempty(obj.h_tau_dot))
     
     M_tauW = {-sin(lat) .* cos(long), -sin(lat) .* sin(long), cos(lat);
               -sin(long)            , cos(long)             , 0;
@@ -169,7 +166,7 @@ if num || (isempty(obj.s_dot) ||isempty(obj.sigma_dot) ||isempty(obj.long_dot) |
         obj.sigma_dot = cell2mat(mult_cellMatrix(transpose(t_rot_W), mult_cellMatrix(v_k_W ,obj.v0))) ...
             ./ (norm_cellVec(t_rot_W));
     end
-end
+% end
 if ~obj.LongLatState
     s_dot     = obj.s_dot;
     sigma_dot = obj.sigma_dot;
@@ -207,28 +204,28 @@ h_tau_dot = obj.h_tau_dot;
 % %     end
 % end
 %% Calculate Tether forces
-if num || (isempty(obj.pos_W))
-    [pos_W_x,pos_W_y,pos_W_z] = sph2cart(long,lat,obj.h0*h_tau);
-    pos_W{1,1} = pos_W_x;
-    pos_W{2,1} = pos_W_y;
-    pos_W{3,1} = pos_W_z;
-    obj.pos_W = pos_W;
-else
-    pos_W = obj.pos_W;
-end
+% if num || (isempty(obj.pos_W))
+%     [pos_W_x,pos_W_y,pos_W_z] = sph2cart(long,lat,obj.h0*h_tau);
+%     pos_W{1,1} = pos_W_x;
+%     pos_W{2,1} = pos_W_y;
+%     pos_W{3,1} = pos_W_z;
+%     obj.pos_W = pos_W;
+% else
+%     pos_W = obj.pos_W;
+% end
 %% Calculate Aerodynamic Forces and Moments
 F_a_B = mult_cellMatrix({0.5 * obj.AIRCRAFT.S_ref * 1.225*(va*obj.v0).^2}, {Cx;Cy; Cz});
 F_a_A = mult_cellMatrix(M_AB, F_a_B); % checked mon 16 Aug
 
 %% All Forces except Aero
-if num || isempty(obj.F_rest)
+% if num || isempty(obj.F_rest)
 
-    if false % simple tether
-        pos_W_norm = norm_cellVec(pos_W);
-        F_t_W = mult_cellMatrix(element_div_cellMatrix(pos_W,{-pos_W_norm}),obj.Ft_set);
-        l_s_dot = h_tau_dot./(obj.T.n_t_p+1);
-        max_F_tether = 0;
-    else
+%     if false % simple tether
+%         pos_W_norm = norm_cellVec(pos_W);
+%         F_t_W = mult_cellMatrix(element_div_cellMatrix(pos_W,{-pos_W_norm}),obj.Ft_set);
+%         l_s_dot = h_tau_dot./(obj.T.n_t_p+1);
+%         max_F_tether = 0;
+%     else
         x_W{1} = long;
         x_W{2} = lat;
         x_W{3} = h_tau*obj.h0;
@@ -236,9 +233,13 @@ if num || isempty(obj.F_rest)
         x_W{5} = lat_dot * obj.v0/obj.h0;
         x_W{6} = h_tau_dot*obj.v0;
         x_W{7} = tether_diff;
-        [f_kite_G, final_seg_diff_dot, max_F_tether] = obj.tether_forces(x_W);
+        if nargout > 2
+            [f_kite_G, ~, max_F_tether] = obj.tether_forces(x_W);
+        else
+            [f_kite_G, ~] = obj.tether_forces(x_W);
+        end
         F_t_W = mult_cellMatrix({-1}, f_kite_G);
-    end
+%     end
     
 %     F_t_W_norm = norm_cellVec(F_t_W);
 %     F_t_W = mult_cellMatrix(element_div_cellMatrix(F_t_W, 1e-99+F_t_W_norm), {min(F_t_W_norm, obj.F_T_max*1e+03)});
@@ -250,11 +251,11 @@ if num || isempty(obj.F_rest)
         F_rest = mult_cellMatrix(M_AbarO, add_cellMatrix({0;0;obj.AIRCRAFT.mass * obj.ENVMT.g},f_kite_G_O));
     end
     obj.F_rest = F_rest;
-    obj.final_seg_diff_dot = final_seg_diff_dot;
-else
-    max_F_tether = 0;
-    F_rest = obj.F_rest;
-end
+    %obj.final_seg_diff_dot = final_seg_diff_dot;
+% else
+%     max_F_tether = 0;
+%     F_rest = obj.F_rest;
+% end
 %tether_diff_dot = cell2mat(obj.final_seg_diff_dot) - l_s_dot;
 tether_diff_dot = d{1};
 if obj.ignoreTetherDiff

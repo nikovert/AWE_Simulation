@@ -100,6 +100,10 @@ f_kite_G = obj.calcSpringDamperForce( c0, norm_cellVec(tmp_p), tether_diff, d0,t
 final_seg_diff_dot = element_div_cellMatrix(mult_cellMatrix(transpose_cellMatrix(tmp_p), ...
     sub_cellMatrix(vel_k_G_W,v_vec(3*(n_t_p) - 2 : 3*(n_t_p)))) , norm_cellVec(tmp_p));
 
+if nargout < 3
+    return
+end
+    
 if false
     X = pos_G_W{1};
     Y = pos_G_W{2};
