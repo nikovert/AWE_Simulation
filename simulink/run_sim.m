@@ -39,11 +39,19 @@ idx =3;
 simInit.perturbed_aero_flag = 0;
 simInit.perturbed_ft_moment_flag = 0; 
 
-yout = sim(name_simulink_model,'ReturnWorkspaceOutputs','on', 'CaptureErrors', 'On');
+simOut = sim(name_simulink_model,'ReturnWorkspaceOutputs','on', 'CaptureErrors', 'On');
 
-save(['yout_test_',name_simulink_model,'.mat'], 'yout');
+save(['yout_test_',name_simulink_model,'.mat'], 'simOut');
 
 addpath(genpath('video')); 
 makevideo
 
 delete(gcp('nocreate'));
+
+%% Power and flight path for last pumping cycle
+P_mech_last_cycle = extractSignalOfLastCycle2(simOut.P_mech, ...
+    simOut.cycle_signal_counter, simInit);
+Path_last_cycle = extractSignalOfLastCycle_nD(simOut.pos_O, ...
+    simOut.cycle_signal_counter, simInit );
+Average_power = mean(P_mech_last_cycle.Data);
+
