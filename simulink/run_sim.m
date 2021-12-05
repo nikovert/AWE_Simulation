@@ -46,8 +46,6 @@ save(['yout_test_',name_simulink_model,'.mat'], 'simOut');
 addpath(genpath('video')); 
 makevideo
 
-delete(gcp('nocreate'));
-
 %% Power and flight path for last pumping cycle
 P_mech_last_cycle = extractSignalOfLastCycle2(simOut.P_mech, ...
     simOut.cycle_signal_counter, simInit);

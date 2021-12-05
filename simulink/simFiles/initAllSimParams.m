@@ -1,6 +1,9 @@
 function [x0_sim,u0_sim,  act, aeroModel, base_windspeed, constr,...
     ENVMT, P_AP2, simInit, T, winchParameter,params] = initAllSimParams(lat_in)
-simInit.TSIM = 200; 
+simInit.TSIM = 340; 
+simInit.Ts_power_conv_check = 0.1;
+simInit.power_conv_threshold = 1.3e+03;
+simInit.Ts_vis = 5;
 params.a_booth = 0.6; % 0.6
 params.b_booth = 200; % 200 also fine
 params.phi0_booth =  30*pi/180;
