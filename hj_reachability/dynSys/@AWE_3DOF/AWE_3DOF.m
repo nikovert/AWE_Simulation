@@ -17,8 +17,10 @@ classdef AWE_3DOF < DynSys
         v_w_O
         
         % The maximum angle
-        alpha_max = pi/18
-        mu_max = 1
+        alpha_max = 0.1745
+        alpha_min = -0.1047
+        mu_max = 1.0472
+        mu_min = -1.0472
         alpha_options = 5; %WARNING MUST UPDATE OPTCTRL IF CHANGED HERE
         mu_options = 9;
         

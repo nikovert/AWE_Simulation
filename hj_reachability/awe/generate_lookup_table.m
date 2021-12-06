@@ -49,7 +49,9 @@ mu_options = dynSys.mu_options;
 values = zeros(length(g.xs{4}(:)), alpha_options*mu_options, 'single');
 
 mu_max = dynSys.mu_max;
+mu_min = dynSys.mu_min;
 alpha_max = dynSys.alpha_max;
+alpha_min = dynSys.alpha_min;
 
 for t = 1:tauLength
     BRS_at_t = data(clns{:}, t);
@@ -70,8 +72,8 @@ for t = 1:tauLength
 
     for m = 1:mu_options
         for a = 1:alpha_options
-            alpha = -alpha_max  + (a-1)/(alpha_options-1) * 2 * alpha_max;
-            mu    = -mu_max     + (m-1)/(mu_options-1)    * 2 * mu_max;
+            alpha = alpha_min  + (a-1)/(alpha_options-1) * (alpha_max-alpha_min);
+            mu    = mu_min     + (m-1)/(mu_options-1)    * (mu_max-mu_min);
             values(:, (m-1)*alpha_options + a) = single(fun([alpha, mu]));
         end
     end
@@ -103,7 +105,7 @@ max_tether_diff_dot = dynSys.max_tether_diff_dot;
 
 if isfield(extraArgs, 'saveFile') && extraArgs.saveFile
     %save('tables.mat', 'alpha_table', 'mu_table', 'grid_min', 'grid_max', 'dx', '-v7.3');
-    save('tables.mat', 'dataf_bool', 'I_table', 'alpha_options', 'mu_options', 'alpha_max', 'mu_max', 'grid_min', 'grid_max', 'dx', 'max_tether_diff_dot', '-v7.3');
+    save('tables.mat', 'dataf_bool', 'I_table', 'alpha_options', 'mu_options', 'alpha_max', 'alpha_min', 'mu_max', 'mu_min', 'grid_min', 'grid_max', 'dx', 'max_tether_diff_dot', '-v7.3');
 end
 end
 
