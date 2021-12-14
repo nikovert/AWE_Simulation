@@ -12,7 +12,7 @@
 % See the License for the specific language governing permissions and
 % limitations under the License.
 
-function y = extractSignalOfLastCycle_nD( signal, sample_count_last_cycle,  simInit )
+function y = extractSignalOfLastCycle_nD( signal, sample_count_last_cycle,  simInit, number_of_clycles)
 %Extract n-D data from last converged power cycle.
 %
 % :param signal: Full n-D timeseries simulation output,size= nx1xtimeseries
@@ -33,7 +33,10 @@ function y = extractSignalOfLastCycle_nD( signal, sample_count_last_cycle,  simI
 % :Author: Dylan Eijkelhof (d.eijkelhof@tudelft.nl)
 
 %------------- BEGIN CODE --------------
-time_window_last_cylce = sample_count_last_cycle.Data(1,1,end) * simInit.Ts_power_conv_check;
+if nargin < 4
+    number_of_clycles = 1;
+end
+time_window_last_cylce = sum(sample_count_last_cycle(end:-1:end-number_of_clycles+1)) * simInit.Ts_power_conv_check;
 idx_time_window_start = find(signal.Time >= signal.Time(end)-time_window_last_cylce,1);
 
 s = size(signal.Data);

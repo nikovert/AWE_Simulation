@@ -1,8 +1,8 @@
 function [x0_sim,u0_sim,  act, aeroModel, base_windspeed, constr,...
     ENVMT, P_AP2, simInit, T, winchParameter,params] = initAllSimParams(lat_in)
-simInit.TSIM = 350; 
+simInit.TSIM = 500; 
 simInit.Ts_power_conv_check = 0.1; %Power convergence check sample time
-simInit.power_conv_threshold = 600; 
+simInit.power_conv_threshold = 500; 
 simInit.Ts_vis = 5;
 params.a_booth = 0.6; % 0.6
 params.b_booth = 200; % 200 also fine
@@ -13,7 +13,7 @@ params.control_delay = 0.015;
 params.winch_control_delay = 0.015; 
 params.winch_meas_delay = 0.015; 
 simInit.skipT = 60; 
-params.Ft_set_traction = 1600; 
+params.Ft_set_traction = 1500; 
 params.Ft_set_retraction = 500; %500; 
 params.winch_control_filter_w0 =1*2*pi; 
 params.winch_control_filter_w0 = 2*2*pi; 
@@ -98,7 +98,7 @@ constr.gamma_retraction_max = 20*pi/180;
 constr.max_CL= 2;
 constr.min_CL= -2;
 
-constr.F_t_max = 1865; 
+constr.F_t_max = 1870; 
 
 constr.vamin = 25; 
 

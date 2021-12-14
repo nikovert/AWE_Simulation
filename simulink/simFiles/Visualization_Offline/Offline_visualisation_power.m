@@ -94,6 +94,8 @@ colormap(CM)  % Set the colormap of the figure
 
 cb = colorbar('peer',axes1,'Location','eastoutside','FontSize',16);
 cb.Label.String = 'Power [kW]';
+cb.Label.Interpreter = 'latex';
+cb.TickLabelInterpreter = cb.Label.Interpreter;
 caxis(LimitsColorBar)
 cb.FontSize = fontsize;
 cb.Location = 'eastoutside';
@@ -105,10 +107,10 @@ limitz = [0 500];
 limity = [-300 300];
 limitx = [-100 600];
 
-xlabel('x_W [m]','FontSize',fontsize);
-ylabel('y_W [m]','FontSize',fontsize);
-zlabel('z_W [m]','FontSize',fontsize);
-
+xlabel('$$x_W$$ [m]','FontSize',fontsize, 'interpreter', 'latex');
+ylabel('$$y_W$$ [m]','FontSize',fontsize, 'interpreter', 'latex');
+zlabel('$$z_W$$ [m]','FontSize',fontsize, 'interpreter', 'latex');
+set(gca,'TickLabelInterpreter','latex');
 
 X = [limitx(1);limitx(2);limitx(2);limitx(1)];
 Y = [limity(1);limity(1);limity(2);limity(2)];

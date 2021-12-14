@@ -12,7 +12,7 @@
 % See the License for the specific language governing permissions and
 % limitations under the License. 
 
-function fig_PO = Theoretical_Pcheck(simOut,constr,ENVMT,DE2019,simInit,T,params,fig_PO)
+function fig_PO = Theoretical_Pcheck(simOut,constr,ENVMT,P_AP2,simInit,T,params,fig_PO ,number_of_clycles)
 % Theoretical check, add values to instantaneous power plot.
 %
 % :param simOut: Simulation output
@@ -42,84 +42,89 @@ if nargin<8
     fig_PO = NaN;
 end
 
-if ~simOut.power_conv_flag
-    error('Simulation output does not contain a converged result')
+if nargin < 4
+    number_of_clycles = 1;
 end
 
 %% Calculate parameters needed to fill in the theoretical equation of Loyd
 colourvec = {'#77AC30', '#A2142F', '#EDB120', '#0072BD', 'm', 'c', 'y'};
 TL = extractSignalOfLastCycle_nD(simOut.tether_length, ...
-            simOut.cycle_signal_counter, simInit );
+            unique(simOut.cycle_signal_counter.Data), simInit, number_of_clycles);
 Vw = extractSignalOfLastCycle_nD(simOut.v_w, ...
-        simOut.cycle_signal_counter, simInit );
+        unique(simOut.cycle_signal_counter.Data), simInit, number_of_clycles);
 Flightstate_last_cycle = extractSignalOfLastCycle_nD(simOut.sub_flight_state, ...
-        simOut.cycle_signal_counter, simInit);
+        unique(simOut.cycle_signal_counter.Data), simInit, number_of_clycles);
 Alpha_last_cycle = extractSignalOfLastCycle_nD(simOut.alpha, ...
-        simOut.cycle_signal_counter, simInit);
+        unique(simOut.cycle_signal_counter.Data), simInit, number_of_clycles);
 % Lift_last_cycle = extractSignalOfLastCycle_nD(simOut.lift, ...
-%         simOut.cycle_signal_counter, simInit);
+%         unique(simOut.cycle_signal_counter.Data), simInit, number_of_clycles);
 Drag_last_cycle = extractSignalOfLastCycle_nD(simOut.drag, ...
-        simOut.cycle_signal_counter, simInit);
+        unique(simOut.cycle_signal_counter.Data), simInit, number_of_clycles);
 Faero_last_cycle = extractSignalOfLastCycle_nD(simOut.Faero, ...
-        simOut.cycle_signal_counter, simInit);
+        unique(simOut.cycle_signal_counter.Data), simInit, number_of_clycles);
 P_mech_last_cycle = extractSignalOfLastCycle_nD(simOut.P_mech, ...
-        simOut.cycle_signal_counter, simInit);
+        unique(simOut.cycle_signal_counter.Data), simInit, number_of_clycles);
+Phi_last_cycle = extractSignalOfLastCycle_nD(simOut.phi0_mean_path, ...
+        unique(simOut.cycle_signal_counter.Data), simInit, number_of_clycles);
 dp_retract = find((Flightstate_last_cycle.Data==6|Flightstate_last_cycle.Data==7),1);
 t_retract = Flightstate_last_cycle.Time(dp_retract);    
 
 amin = rad2deg(constr.alpha_a_min);
 amax = rad2deg(constr.alpha_a_max);
-ind = (DE2019.initAircraft.alpha>=amin & DE2019.initAircraft.alpha<=amax);
-x = DE2019.initAircraft.alpha(ind);
-y1 = DE2019.initAircraft.wing_cL_Static(ind);
-y2 = DE2019.initAircraft.wing_cD_Static(ind);
+ind = (P_AP2.initAircraft.alpha>=amin & P_AP2.initAircraft.alpha<=amax);
+x = P_AP2.initAircraft.alpha(ind);
+y1 = P_AP2.initAircraft.wing_cL_Static(ind);
+y2 = P_AP2.initAircraft.wing_cD_Static(ind);
 alpha_list = rad2deg(Alpha_last_cycle.Data(Alpha_last_cycle.Time<=t_retract));
 alpha_list(alpha_list>amax) = amax;
 alpha_list(alpha_list<amin) = amin;
 C_L = interp1(x,y1,alpha_list);
 C_D = interp1(x,y2,alpha_list);
-C_D_tether = T.CD_tether*TL.Data(TL.Time<=t_retract)*T.d_tether/(4*DE2019.S_wing);
+C_D_tether = T.CD_tether*TL.Data(TL.Time<=t_retract)*T.d_tether/(4*P_AP2.S_wing);
          
 [cl3cd2,itether] = max(C_L.^3./(C_D+C_D_tether).^2);
 
 % Just reel-out phase is taken into account as this is where peak power is
 % expected to occur.
-p_loyd_tether = 2/27*ENVMT.rhos*DE2019.S_wing*mean(Vw.Data)^3*cl3cd2*cos(params.phi0_booth)^3/1e3;
+%p_loyd_tether = 2/27*ENVMT.rhos*P_AP2.S_wing*mean(Vw.Data)^3*cl3cd2*cos(params.phi0_booth)^3/1e3;
 
 disp(['CL @ CDeff: ', num2str(C_L(itether))])
 disp(['CDeff: ', num2str(C_D(itether)+C_D_tether(itether))])
 tltest = TL.Data(TL.Time<=t_retract);
 disp(['Tether length: ', num2str(tltest(itether))])
-disp(['Peak power (reel-out): ', num2str(p_loyd_tether), ' kW'])
+%disp(['Peak power (reel-out): ', num2str(p_loyd_tether), ' kW'])
 Pw = 0.5*ENVMT.rhos*mean(Vw.Data)^3;
 disp(['Power density: ', num2str(Pw)])
 
 %% Costello et al.
 % Lift = Lift_last_cycle.Data(Lift_last_cycle.Time<=t_retract);
-Drag = mean(Drag_last_cycle.Data(Drag_last_cycle.Time<=t_retract));
-Faero = mean(Faero_last_cycle.Data(Faero_last_cycle.Time<=t_retract));
-e = (cos(params.phi0_booth+asin(...
-    (Drag/Faero)*sin(params.phi0_booth)+...
-    (DE2019.mass*ENVMT.g/Faero)*cos(params.phi0_booth)))^3);
-zeta = 4/27*mean(C_L.^3./(C_D+C_D_tether).^2);
-Costello_Pavg_max = e*Pw*DE2019.S_wing*zeta/1e3;
+Drag = (Drag_last_cycle.Data(Drag_last_cycle.Time<=t_retract));
+Faero = (Faero_last_cycle.Data(Faero_last_cycle.Time<=t_retract));
+v_wind = (Vw.Data(Vw.Time<=t_retract));
+Phi = (Phi_last_cycle.Data(Phi_last_cycle.Time<=t_retract));
+Pw = 0.5*ENVMT.rhos*(v_wind).^3;
+e = (cos(Phi+asin(...
+    (Drag./Faero).*sin(Phi)+...
+    (P_AP2.mass*ENVMT.g./Faero).*cos(Phi))).^3);
+zeta = 4/27*(C_L.^3./(C_D+C_D_tether).^2);
+Costello_Pavg_max = mean(e.*Pw.*P_AP2.S_wing.*zeta/1e3);
 disp(['Costello Pavg max. (reel-out): ', num2str(Costello_Pavg_max), ' kW'])
 % Pout = mean([P_mech_last_cycle.Data(1:dp_retract-1);0.*P_mech_last_cycle.Data(dp_retract:end)]);
 
-disp(['zeta: ', num2str(zeta)])
-disp(['e: ', num2str(e)])
+disp(['zeta: ', num2str(mean(zeta))])
+disp(['e: ', num2str(mean(e))])
 
 %% Plotting
 if ishandle(fig_PO)
     figure(fig_PO)
     legend('Interpreter', 'latex')
     
-    if p_loyd_tether < 1
-        mp = [num2str(p_loyd_tether*1e3,3) ' W'];
-    else
-        mp = [num2str(p_loyd_tether,3) ' kW'];
-    end
-    plot([0, Vw.Time(end)-Vw.Time(1)],[p_loyd_tether,p_loyd_tether],'-.','Color',colourvec{4},'DisplayName',['$P_{max}$ (' mp ')'])
+%     if p_loyd_tether < 1
+%         mp = [num2str(p_loyd_tether*1e3,3) ' W'];
+%     else
+%         mp = [num2str(p_loyd_tether,3) ' kW'];
+%     end
+%     plot([0, Vw.Time(end)-Vw.Time(1)],[p_loyd_tether,p_loyd_tether],'-.','Color',colourvec{4},'DisplayName',['$P_{max}$ (' mp ')'])
     
     if Costello_Pavg_max < 1
         mpc = [num2str(Costello_Pavg_max*1e3,3) ' W'];
@@ -128,7 +133,7 @@ if ishandle(fig_PO)
     end
     plot([0, Vw.Time(end)-Vw.Time(1)],[Costello_Pavg_max,Costello_Pavg_max],'-.','Color',colourvec{5},'DisplayName',['$\tilde{P}$ (' mpc ')'])
     
-    ylim([min(P_mech_last_cycle.Data./1e3), ceil(max([P_mech_last_cycle.Data./1e3;p_loyd_tether;Costello_Pavg_max]))])
+    %ylim([min(P_mech_last_cycle.Data./1e3), ceil(max([P_mech_last_cycle.Data./1e3;p_loyd_tether;Costello_Pavg_max]))])
     
 end
 end
