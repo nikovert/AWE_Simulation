@@ -1,3 +1,18 @@
+% Copyright (C) 2021  Nikolaus Vertovec
+% 
+%     This program is free software: you can redistribute it and/or modify
+%     it under the terms of the GNU General Public License as published by
+%     the Free Software Foundation, either version 3 of the License, or
+%     (at your option) any later version.
+% 
+%     This program is distributed in the hope that it will be useful,
+%     but WITHOUT ANY WARRANTY; without even the implied warranty of
+%     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%     GNU General Public License for more details.
+%
+% :Revision: 14-December-2021
+% :Author: Mo Chen (mochen@sfu.ca)
+
 function h = visSetIm(g, data, color, level, extraArgs)
 % h = visSetIm(g, data, color, level, sliceDim, applyLight)
 % Code for quickly visualizing level sets
@@ -15,7 +30,6 @@ function h = visSetIm(g, data, color, level, extraArgs)
 % Adapted from Ian Mitchell's visualizeLevelSet function from the level set
 % toolbox
 %
-% Mo Chen, 2016-05-12
 
 %% Default parameters and input check
 if isempty(g)

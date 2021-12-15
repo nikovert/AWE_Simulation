@@ -1,11 +1,23 @@
+% Copyright (C) 2021  Nikolaus Vertovec
+% 
+%     This program is free software: you can redistribute it and/or modify
+%     it under the terms of the GNU General Public License as published by
+%     the Free Software Foundation, either version 3 of the License, or
+%     (at your option) any later version.
+% 
+%     This program is distributed in the hope that it will be useful,
+%     but WITHOUT ANY WARRANTY; without even the implied warranty of
+%     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%     GNU General Public License for more details.
+%
+% :Revision: 14-December-2021
+% :Author: Nikolaus Vertovec (nikolaus.vertovec@eng.ox.ac.uk)
+% :Adapted from: Sebastian Rapp (s.rapp@tudelft.nl)
+
 function [ d_segment ] = calcSegmentDrag(obj, p_d, v_a_p, rho_air, CD_tether,d_tether )
 %CALCSEGMENTDRAG  [ d_segment ] = calcSegmentDrag( p_d, v_a_p, rho_air, CD_tether,d_tether )
 % Equations are adapted from Fechner et al, Dynamic Model of a Pumping Kite
 % Power System, Renewable Energy, 2015.
-% Implementation: Sebastian Rapp, Wind Energy Institute, Faculty of
-% Aerospace Engineering, TU Delft
-% Mail: s.rapp@tudelft.nl
-% Last change: 19.01.2018
 %
 % General description:
 % This functions calculates the segment drag.

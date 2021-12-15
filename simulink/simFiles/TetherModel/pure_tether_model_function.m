@@ -1,14 +1,25 @@
+% Copyright (C) 2021  Nikolaus Vertovec
+% 
+%     This program is free software: you can redistribute it and/or modify
+%     it under the terms of the GNU General Public License as published by
+%     the Free Software Foundation, either version 3 of the License, or
+%     (at your option) any later version.
+% 
+%     This program is distributed in the hope that it will be useful,
+%     but WITHOUT ANY WARRANTY; without even the implied warranty of
+%     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%     GNU General Public License for more details.
+%
+% :Revision: 14-December-2021
+% :Author: Nikolaus Vertovec (nikolaus.vertovec@eng.ox.ac.uk)
+% :Adapted from: Sebastian Rapp (s.rapp@tudelft.nl)
+
 function [x_dotdot_TetherG2K,l_s_dot, ground_tether_force]    = pure_tether_model_function(x_dot, x,  v_w,...
     d_tether, CD_tether, v_ro_set,l_s, c0, d0, rho_t, g_vec, rho_air,...
     x_kite_A,x_kite_C,x_kite_D ,xdot_kite_A,xdot_kite_C,xdot_kite_D, ls_AKcu, ls_CKcu,  ls_DKcu, m_kcu, landedFlag   )
 %% Readme
 % Equations are adapted from Fechner et al, Dynamic Model of a Pumping Kite
 % Power System, Renewable Energy, 2015.
-% Implementation: Sebastian Rapp, Wind Energy Institute, Faculty of
-% Aerospace Engineering, TU Delft
-% Mail: s.rapp@tudelft.nl
-% Last change: 19.01.2018
-%
 % General description:
 % This functions calculates the accelerations of the tether particle
 % segment based on the acting forces at each particle.
@@ -35,8 +46,6 @@ function [x_dotdot_TetherG2K,l_s_dot, ground_tether_force]    = pure_tether_mode
 % x_dotdot_TetherG2K: accelertions of the tether particles
 % l_s_dot: tether length increases with this speed
 % ground_tether_force: tether force as measured at the ground
-
-%#codegen
 
 n_t_p = 5; % amount of particles
 l_s_dot = v_ro_set/n_t_p; % Particle speeds

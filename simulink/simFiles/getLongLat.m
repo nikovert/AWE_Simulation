@@ -1,3 +1,18 @@
+% Copyright (C) 2021  Nikolaus Vertovec
+% 
+%     This program is free software: you can redistribute it and/or modify
+%     it under the terms of the GNU General Public License as published by
+%     the Free Software Foundation, either version 3 of the License, or
+%     (at your option) any later version.
+% 
+%     This program is distributed in the hope that it will be useful,
+%     but WITHOUT ANY WARRANTY; without even the implied warranty of
+%     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%     GNU General Public License for more details.
+%
+% :Revision: 14-December-2021
+% :Author: Nikolaus Vertovec (nikolaus.vertovec@eng.ox.ac.uk)
+
 function [long, lat, t_tau, t_rot_tau, t_W, t_rot_W] = getLongLat(s, sigma, h_tau, PHI_BOOTH, params)
 
 Lem.a = params.a_booth;
@@ -67,7 +82,7 @@ long = atan(p_kite_W(2)./p_kite_W(1));
 lat = asin(max(-1,min(1,p_kite_W(3)./h_tau)));
 end
 
-function xp = cir(t,x)
+function xp = cir(~,x)
     xp = zeros(4,1);
     xp(1) = x(2);
     xp(2) = 2*tan(x(3))*x(2)*x(4);

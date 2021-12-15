@@ -1,16 +1,18 @@
-% Copyright 2021 Delft University of Technology
+% Copyright (C) 2021  Nikolaus Vertovec
+% 
+%     This program is free software: you can redistribute it and/or modify
+%     it under the terms of the GNU General Public License as published by
+%     the Free Software Foundation, either version 3 of the License, or
+%     (at your option) any later version.
+% 
+%     This program is distributed in the hope that it will be useful,
+%     but WITHOUT ANY WARRANTY; without even the implied warranty of
+%     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%     GNU General Public License for more details.
 %
-% Licensed under the Apache License, Version 2.0 (the "License");
-% you may not use this file except in compliance with the License.
-% You may obtain a copy of the License at
-%
-%      http://www.apache.org/licenses/LICENSE-2.0
-%
-% Unless required by applicable law or agreed to in writing, software
-% distributed under the License is distributed on an "AS IS" BASIS,
-% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-% See the License for the specific language governing permissions and
-% limitations under the License. 
+% :Revision: 14-December-2021
+% :Author: Nikolaus Vertovec (nikolaus.vertovec@eng.ox.ac.uk)
+% :Adapted from: Dylan Eijkelhof (d.eijkelhof@tudelft.nl)
 
 function fig_PO = Theoretical_Pcheck(simOut,constr,ENVMT,P_AP2,simInit,T,params,fig_PO ,number_of_clycles)
 % Theoretical check, add values to instantaneous power plot.
@@ -18,20 +20,14 @@ function fig_PO = Theoretical_Pcheck(simOut,constr,ENVMT,P_AP2,simInit,T,params,
 % :param simOut: Simulation output
 % :param constr: Aircraft manoeuvre and winch constraints
 % :param ENVMT: Environmental parameters
-% :param DE2019: Aircraft parameters
+% :param P_AP2: Aircraft parameters
 % :param simInit: Simulation initialisation parameters
 % :param T: Tether dimensions and material properties
 % :param params: Flight/Winch controller parameters
 % :param fig_PO: Instantaneous power figure (Offline_visualisation_power.m)
+% :param number_of_clycles: the umber of sampels cycles considered
 % :returns: 
 %           - **fig_PO** - Instantaneous power plot of converged power cycle with theoretical power.
-%
-% | Other m-files required: Offline_visualisation_power.m(if fig_PO not given), extractSignalOfLastCycle_nD.m
-% | Subfunctions: none
-% | MAT-files required: none
-%
-% :Revision: 14-April-2021
-% :Author: Dylan Eijkelhof (d.eijkelhof@tudelft.nl)
 %
 % .. note::
 %           - Loyd peak power with cosine losses from cycle CL and CD, 
@@ -119,21 +115,12 @@ if ishandle(fig_PO)
     figure(fig_PO)
     legend('Interpreter', 'latex')
     
-%     if p_loyd_tether < 1
-%         mp = [num2str(p_loyd_tether*1e3,3) ' W'];
-%     else
-%         mp = [num2str(p_loyd_tether,3) ' kW'];
-%     end
-%     plot([0, Vw.Time(end)-Vw.Time(1)],[p_loyd_tether,p_loyd_tether],'-.','Color',colourvec{4},'DisplayName',['$P_{max}$ (' mp ')'])
-    
     if Costello_Pavg_max < 1
         mpc = [num2str(Costello_Pavg_max*1e3,3) ' W'];
     else
         mpc = [num2str(Costello_Pavg_max,3) ' kW'];
     end
     plot([0, Vw.Time(end)-Vw.Time(1)],[Costello_Pavg_max,Costello_Pavg_max],'-.','Color',colourvec{5},'DisplayName',['$\tilde{P}$ (' mpc ')'])
-    
-    %ylim([min(P_mech_last_cycle.Data./1e3), ceil(max([P_mech_last_cycle.Data./1e3;p_loyd_tether;Costello_Pavg_max]))])
     
 end
 end

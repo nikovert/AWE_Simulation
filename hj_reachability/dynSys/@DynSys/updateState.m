@@ -1,3 +1,19 @@
+% Copyright (C) 2021  Nikolaus Vertovec
+% 
+%     This program is free software: you can redistribute it and/or modify
+%     it under the terms of the GNU General Public License as published by
+%     the Free Software Foundation, either version 3 of the License, or
+%     (at your option) any later version.
+% 
+%     This program is distributed in the hope that it will be useful,
+%     but WITHOUT ANY WARRANTY; without even the implied warranty of
+%     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%     GNU General Public License for more details.
+%
+% :Revision: 14-December-2021
+% :Author: Nikolaus Vertovec (nikolaus.vertovec@eng.ox.ac.uk)
+% :Adapted from Mo Chen (mochen@sfu.ca)
+
 function x1 = updateState(obj, u, T, x0, d)
 % x1 = updateState(obj, u, T, x0, d)
 % Updates state based on control
@@ -10,7 +26,6 @@ function x1 = updateState(obj, u, T, x0, d)
 %
 % Outputs:  x1  - final state
 %
-% Mo Chen, 2015-05-24
 
 % If no state is specified, use current state
 if nargin < 4 || isempty(x0)
@@ -39,9 +54,19 @@ if iscell(u)
   u = cell2mat(u);
 end
 
+if iscell(d)
+  u = cell2mat(d);
+end
+
 % Do nothing if control is not a number
 if isnan(u)
   warning('u = NaN')
+  x1 = x0;
+  return;
+end
+
+if isnan(d)
+  warning('d = NaN')
   x1 = x0;
   return;
 end
@@ -51,9 +76,17 @@ if ~isnumeric(u)
   error('Control must be numeric!')
 end
 
+if ~isnumeric(d)
+  error('Disturbance must be numeric!')
+end
+
 % Convert control to column vector if needed
 if ~iscolumn(u)
   u = u';
+end
+
+if ~iscolumn(d)
+  d = d';
 end
 
 % Check whether there's disturbance (this is needed since not all vehicle

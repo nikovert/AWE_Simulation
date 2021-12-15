@@ -1,3 +1,18 @@
+% Copyright (C) 2021  Nikolaus Vertovec
+% 
+%     This program is free software: you can redistribute it and/or modify
+%     it under the terms of the GNU General Public License as published by
+%     the Free Software Foundation, either version 3 of the License, or
+%     (at your option) any later version.
+% 
+%     This program is distributed in the hope that it will be useful,
+%     but WITHOUT ANY WARRANTY; without even the implied warranty of
+%     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%     GNU General Public License for more details.
+%
+% :Revision: 14-December-2021
+% :Author: Nikolaus Vertovec (nikolaus.vertovec@eng.ox.ac.uk)
+
 %% Test the chi_a command and gamma_a commmand drive towards the figure 8
 % Generates Figure OptimalCMD.png
 %% Add relevant files to path
@@ -116,8 +131,8 @@ for i = 1:iterations
     [pos_W_x,pos_W_y,pos_W_z] = sph2cart(long,lat,h0*h_tau);
     pos_before = [pos_W_x,pos_W_y,pos_W_z];
     
-    sys.updateState([0; 0], dtSmall, sys.x, sys.max_tether_diff_dot);
-    
+    sys.updateState([0; 0], dtSmall, sys.x, [0;0;0;0]);
+   
     if LongLatState
         long = sys.x(1);
         lat = sys.x(2);

@@ -1,3 +1,19 @@
+% Copyright (C) 2021  Nikolaus Vertovec
+% 
+%     This program is free software: you can redistribute it and/or modify
+%     it under the terms of the GNU General Public License as published by
+%     the Free Software Foundation, either version 3 of the License, or
+%     (at your option) any later version.
+% 
+%     This program is distributed in the hope that it will be useful,
+%     but WITHOUT ANY WARRANTY; without even the implied warranty of
+%     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%     GNU General Public License for more details.
+%
+% :Revision: 14-December-2021
+% :Author: Nikolaus Vertovec (nikolaus.vertovec@eng.ox.ac.uk)
+% :Adapted from: Sebastian Rapp (s.rapp@tudelft.nl)
+
 function visualize_vehicle(uu)
     % process input to function
     pn = -uu(1); % inertial North position
@@ -275,10 +291,7 @@ function [p] = drawVehicleBody2(V,pn, pe, pd, phi, theta, psi,p, mode)
         view(45,45);
         daspect([1 1 1])   
     else
-        %set(p, 'Xdata', xstab, 'Ydata', ystab, 'Zdata', zstab);
         set(p, 'Vertices', V');
-        %set(h_wing, 'Xdata', xwing, 'Ydata', ywing, 'Zdata', zwing);
-        %set(h_plane, 'Xdata', xplane, 'Ydata', yplane, 'Zdata', zplane);
         drawnow
     end
 end

@@ -1,6 +1,20 @@
+% Copyright (C) 2021  Nikolaus Vertovec
+% 
+%     This program is free software: you can redistribute it and/or modify
+%     it under the terms of the GNU General Public License as published by
+%     the Free Software Foundation, either version 3 of the License, or
+%     (at your option) any later version.
+% 
+%     This program is distributed in the hope that it will be useful,
+%     but WITHOUT ANY WARRANTY; without even the implied warranty of
+%     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%     GNU General Public License for more details.
+%
+% :Revision: 14-December-2021
+% :Author: Nikolaus Vertovec (nikolaus.vertovec@eng.ox.ac.uk)
+
 function [alpha_table, mu_table ,I_table] = generate_lookup_table(g, data, tau, dynSys, extraArgs)
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
+%GENERATE_LOOKUP_TABLE generates the looup table used during Simulation
 if nargin < 5
     extraArgs = [];
 end
@@ -104,7 +118,6 @@ end
 max_tether_diff_dot = dynSys.max_tether_diff_dot;
 
 if isfield(extraArgs, 'saveFile') && extraArgs.saveFile
-    %save('tables.mat', 'alpha_table', 'mu_table', 'grid_min', 'grid_max', 'dx', '-v7.3');
     save('tables.mat', 'dataf_bool', 'I_table', 'alpha_options', 'mu_options', 'alpha_max', 'alpha_min', 'mu_max', 'mu_min', 'grid_min', 'grid_max', 'dx', 'max_tether_diff_dot', '-v7.3');
 end
 end

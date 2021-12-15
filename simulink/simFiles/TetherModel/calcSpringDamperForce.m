@@ -1,13 +1,25 @@
+% Copyright (C) 2021  Nikolaus Vertovec
+% 
+%     This program is free software: you can redistribute it and/or modify
+%     it under the terms of the GNU General Public License as published by
+%     the Free Software Foundation, either version 3 of the License, or
+%     (at your option) any later version.
+% 
+%     This program is distributed in the hope that it will be useful,
+%     but WITHOUT ANY WARRANTY; without even the implied warranty of
+%     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%     GNU General Public License for more details.
+%
+% :Revision: 14-December-2021
+% :Author: Nikolaus Vertovec (nikolaus.vertovec@eng.ox.ac.uk)
+% :Adapted from: Sebastian Rapp (s.rapp@tudelft.nl)
+
 function [ fsd_tot_vec_i ] = calcSpringDamperForce( c, p_norm, l_s, d, p_d, v_d )
 %CALC_SPRINGDAMPERFORCE Summary of this function goes here
 
 %% Readme
 % Equations are adapted from Fechner et al, Dynamic Model of a Pumping Kite
 % Power System, Renewable Energy, 2015.
-% Implementation: Sebastian Rapp, Wind Energy Institute, Faculty of
-% Aerospace Engineering, TU Delft
-% Mail: s.rapp@tudelft.nl
-% Last change: 19.01.2018
 %
 % General description:
 % This functions calculates the spring-damper force acting in one tether segment.
@@ -30,9 +42,9 @@ delta = 1e-3;
 if x<=0 % no compressive forces allowed
     c = c * min( max( 1/delta * ( x + epsilon )+1, 0), 1); % smooth
     d = d * min( max( 1/delta * ( x + epsilon )+1, 0), 1); 
-    fsd_tot_vec_i = (c * ( p_norm - l_s ) + d * ( p_d/p_norm)' * v_d ) * p_d/p_norm;
+    fsd_tot_vec_i = (c * ( x ) + d * ( p_d/p_norm)' * v_d ) * p_d/p_norm;
 else
-    fsd_tot_vec_i = (c * ( p_norm - l_s ) + d * ( p_d/p_norm)' * v_d ) * p_d/p_norm;
+    fsd_tot_vec_i = (c * ( x ) + d * ( p_d/p_norm)' * v_d ) * p_d/p_norm;
 end
 
 end
