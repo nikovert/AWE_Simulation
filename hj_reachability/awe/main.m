@@ -1,9 +1,22 @@
- %% Readme
+% Copyright (C) 2021  Nikolaus Vertovec
+% 
+%     This program is free software: you can redistribute it and/or modify
+%     it under the terms of the GNU General Public License as published by
+%     the Free Software Foundation, either version 3 of the License, or
+%     (at your option) any later version.
+% 
+%     This program is distributed in the hope that it will be useful,
+%     but WITHOUT ANY WARRANTY; without even the implied warranty of
+%     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%     GNU General Public License for more details.
+%
+% :Revision: 14-December-2021
+% :Author: Nikolaus Vertovec (nikolaus.vertovec@eng.ox.ac.uk)
+
+%% Readme
 % This script is intended to calculate the optimal path for tracking a
 % figure 8 using a 3 DOF AWE model
 %
-% Last updated 23 Nov 2021
-%%
 % clear;
 % close all;
 % clc;
@@ -35,11 +48,10 @@ tether_diff = 0.0003;
 initialState = [s, sigma, h_tau, Va, chi_a, gamma_a, tether_diff]';
 
 %% Grid 
-%                long,    lat,   h_tau,     Va,     chi_a,    gamma_a,  tether_diff (not normalised)
-N        = [       31;   7;       7;      9;        10;         11;     9];
-%N        = [        3;   3;       3;      3;        3;         3;     3];
-grid_min = [     0/a0; -45;  200/h0;  20/v0;    -pi/a0;   -pi/3/a0; -1e-3]; 
-grid_max = [  2*pi/a0;  45;  600/h0;  40/v0;     pi/a0;    pi/3/a0;  7e-3];
+%                   s,sigma,   h_tau,     Va,     chi_a,    gamma_a,  tether_diff (not normalised)
+N        = [       31;    7;       7;      9;        10;         11;     9];
+grid_min = [     0/a0;  -45;  200/h0;  20/v0;    -pi/a0;   -pi/3/a0; -1e-3]; 
+grid_max = [  2*pi/a0;   45;  600/h0;  40/v0;     pi/a0;    pi/3/a0;  7e-3];
 pdDims   = [1 5];
 process  = true;
 % N = N(1:end-1);
@@ -196,52 +208,3 @@ if HJIextraArgs.keepLast
 else
     [alpha_table, mu_table, I_table] = generate_lookup_table(grid, flip(data,length(grid.N)+1), 1, sys, extraArgs);
 end
-%% Trajectory
-TrajextraArgs.visualize = true; %show plot
-TrajextraArgs.fig_num = 2; %figure number
-if grid.dim == 6
-    dataf = data(:,:,:,:,:,:,end);
-else
-    dataf = data(:,:,:,:,:,:,:,end);
-end
-ind     = find(dataf< 0);       % All points in the BRT
-index   = find(data0(ind)>0);   % index of int that is not in initial state
-if isempty(index)
-    return
-end
-I = cell(grid.dim,1);
-if grid.dim == 6
-    [I{1},I{2},I{3},I{4},I{5},I{6}]      = ind2sub(N,ind(index)); % convert index
-else
-    [I{1},I{2},I{3},I{4},I{5},I{6},I{7}] = ind2sub(N,ind(index)); % convert index
-end
-rm_ind = [];
-for i=1:grid.dim % remove points on the boundary
-    rm_ind = [rm_ind; find(I{i} == 1); find(I{i} == N(i))];
-end
-index(rm_ind) = [];
-if grid.dim == 6
-    [I{1},I{2},I{3},I{4},I{5},I{6}]      = ind2sub(N,ind(index)); % convert index
-else
-    [I{1},I{2},I{3},I{4},I{5},I{6},I{7}] = ind2sub(N,ind(index)); % convert index
-end
-for i=1:grid.dim
-    sys.x(i) = grid.vs{i}(I{i}(ceil(2*length(index)/4)));
-end
-
-assert(eval_u(grid, dataf, sys.x, 'linear') < 0)
-sys.xhist = [];
-     
-%we want to see the first two dimensions (x and y)
-TrajextraArgs.projDim = HJIextraArgs.visualize.plotData.plotDims; 
-TrajextraArgs.continuous = true;
-TrajextraArgs.Lem = targetDistanceArgs.Lem;
-TrajextraArgs.distanceOnly = targetDistanceArgs.distanceOnly;
-TrajextraArgs.normalize = false;
-if isfield(targetDistanceArgs, 'h_tau')
-    TrajextraArgs.h_tau = targetDistanceArgs.h_tau;
-end
-dataTraj = flip(data,length(grid.N)+1);
-[traj, traj_tau] = computeTraj(grid, dataTraj, tau, sys, TrajextraArgs);
-
-
