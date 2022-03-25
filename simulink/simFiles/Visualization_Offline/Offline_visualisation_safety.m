@@ -22,41 +22,32 @@ function [fig_saf] = Offline_visualisation_safety(safety_last_cycle,Path_last_cy
 
 %------------- BEGIN CODE --------------
 %% Flight path & power
-fig_saf = figure('Name', 'Flight path, switching coloured');
+fig_saf = figure('Name', 'Flight path, switching coloured',...
+    'Colormap',[0.9 0.7 0.1;0 0 1],...
+    'Renderer','painters');
 set(gcf, 'Position',  [100, 100, 1400, 1000])
 axes1 = axes('Parent',fig_saf,'Position',[0.13,0.11,0.678584552871244,0.815]);
 hold(axes1,'on');
-fig_saf.Renderer = 'painters';
 view([16 19])
 fontsize = 35;
 
 % Flight path coloured by safety switch
-sizeScatter = 14;
+sizeScatter = 40;
 Safety = safety_last_cycle.Data;
 scatter3(-Path_last_cycle.Data(1,:),Path_last_cycle.Data(2,:),-Path_last_cycle.Data(3,:),sizeScatter*ones(size(Safety)),Safety,'filled'); hold on
 enhance_plot('Times',fontsize,2,40,0)
 
-%Colorbar
-LimitsColorBar = [floor(min(Safety)/1)*1 ceil(max(Safety)/1)*1];
+% Colorbar
+colorbar(axes1,'Position',...
+    [0.778307736262248 0.724475524475524 0.0149448588934614 0.124475524475525],...
+    'Ticks',[0 1],...
+    'TickLabels',{'NDI controller','Safety controller'});
 
-CM = bone((LimitsColorBar(2)-LimitsColorBar(1))*100);
-negbar = hot(abs(LimitsColorBar(1))*100+900);
-CM(1:abs(LimitsColorBar(1))*100,:) = negbar(1:end-900,:);
-CM(abs(LimitsColorBar(1))*100+1:end,:) = flipud(winter(size(CM(abs(LimitsColorBar(1))*100+1:end,:),1)));
-colormap(CM)  % Set the colormap of the figure
-
-cb = colorbar('peer',axes1,'Location','eastoutside','FontSize',16);
-cb.Label.String = 'Safety [On/Off]';
-cb.Label.Interpreter = 'latex';
-cb.TickLabelInterpreter = cb.Label.Interpreter;
-caxis(LimitsColorBar)
-cb.FontSize = fontsize;
-cb.Location = 'eastoutside';
-cb.Position = [0.874536933823625,0.111493416432584,0.010666666666667,0.815];   
-cb.Label.FontSize = fontsize;
-cb.Ticks = [0 1];
-cb.TickLabels = {'False','True'};
-
+% Create rectangle
+% annotation(fig_saf,'rectangle',...
+%     [0.776428571428571 0.764216366158114 0.0214285714285715 0.044382801664355],...
+%     'Color','none',...
+%     'FaceColor',[1 1 1]);
 
 % Graph limits
 limitz = [0 500];

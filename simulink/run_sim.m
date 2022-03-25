@@ -38,7 +38,7 @@ lat_init = 80*pi/180;
 params.direction = -1;
 
 Ft_max = 1870;
-safety_controller = false;
+safety_controller = true;
 
 turbulence = true;
 

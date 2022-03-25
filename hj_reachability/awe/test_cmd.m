@@ -19,6 +19,8 @@
 addpath('../')
 addToolbox;
 
+clear; close all
+
 %% Normalisation parameter
 h0 = 1;
 v0 = 1;
@@ -85,6 +87,7 @@ view(axes1,[85.9885774495375 43.2006589259743]);
 xlabel('X','Visible','off')
 ylabel('Y','Visible','off')
 zlabel('Z','Visible','off')
+axes1.XLim = [35 200];
 
 % Create textbox
 annotation(targetDistanceArgs.fig_handle,'textbox',...
@@ -100,6 +103,7 @@ distance = zeros(1, iterations);
 traj = nan(7, iterations);
 
 targetDistanceArgs.visualize    = false;
+targetDistanceArgs.AX = axes1;
 [distance_tmp, sol,p_C_W, p_kite_W, extraOuts] = sys.getTargetdistance(sys.x, targetDistanceArgs);
 plot3(p_kite_W{1}, p_kite_W{2}, p_kite_W{3}, 'bo', 'MarkerFaceColor','b', 'MarkerSize', 20)
 sys.x(5) = extraOuts.chi_cmd_a/sys.a0;
@@ -110,8 +114,14 @@ length_curve = 0;
 for i = 1:iterations
     if mod(i-1,5) == 0
         targetDistanceArgs.visualize = true;
+        if i==1
+            targetDistanceArgs.visualizeVec = true;
+        else
+            targetDistanceArgs.visualizeVec = false;
+        end
     else
         targetDistanceArgs.visualize = false;
+        targetDistanceArgs.visualizeVec = false;
     end
     [distance_tmp, sol,p_C_W, p_kite_W, extraOuts] = sys.getTargetdistance(sys.x, targetDistanceArgs);
     distance(i) = distance_tmp;
@@ -162,4 +172,4 @@ for i = 1:iterations
 %         warning('we should be travelling a distance of about va')
 %     end
 end
-view(axes1,[85.9885774495375 43.2006589259743]);
+view(targetDistanceArgs.AX,[85.9885774495375 43.2006589259743]);

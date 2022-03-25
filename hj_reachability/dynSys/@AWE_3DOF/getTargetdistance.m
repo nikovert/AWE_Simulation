@@ -110,10 +110,15 @@ visualize_distance = isfield(extraArgs, 'visualize') && extraArgs.visualize && l
 
 if isfield(extraArgs, 'fig_handle')
     set(0, 'CurrentFigure', extraArgs.fig_handle)
-    view(60, 30)
+    figure1 = extraArgs.fig_handle;
 elseif isfield(extraArgs, 'fig_num') 
-    figure(extraArgs.fig_num)
+    figure1 = figure(extraArgs.fig_num);
     hold on
+end
+
+if isfield(extraArgs, 'AX')
+    view(extraArgs.AX, 60, 30)
+else
     view(60, 30)
 end
 
@@ -191,8 +196,11 @@ if visualize_distance && isfield(extraArgs, 'visualizePath') && extraArgs.visual
 %         t_range(:,i) = cell2mat(t_tmp);
 %     end
 %     [long_dot_range, lat_dot_range, r_dot_range] = vel_cart2sph(points(1,:), points(2,:), points(3,:), t_range(1,:), t_range(2,:), t_range(3,:));
-
-    scatter3(points(1,:),points(2,:),points(3,:),20, 'ko')
+    if isfield(extraArgs, 'AX')
+        scatter3(extraArgs.AX, points(1,:),points(2,:),points(3,:),20, 'ko')
+    else
+        scatter3(points(1,:),points(2,:),points(3,:),20, 'ko')
+    end
 end
 
 
@@ -385,14 +393,80 @@ if visualize_distance
     end
     
     % translate
-    quiver3(p_kite_W{1},p_kite_W{2},p_kite_W{3},v_cmd_W{1},v_cmd_W{2},v_cmd_W{3})
+    quiver3(p_kite_W{1},p_kite_W{2},p_kite_W{3},v_cmd_W{1},v_cmd_W{2},v_cmd_W{3}, 'LineWidth', 3)
+
+    % plot arc to visualize chi_cmd
+    func = @(chi, scale) mult_cellMatrix(M_Wtau,mult_cellMatrix({cos(chi)*cos(0); sin(chi)*cos(0); -sin(0)}, {scale}));
+    arc_plot = cell2mat(p_kite_W) + cell2mat(func(0:-0.01:mod(chi_parallel{1}, -2*pi), Va*0.9));
+    plot3(arc_plot(1,:), arc_plot(2,:), arc_plot(3,:), 'g', 'LineWidth', 3)
+
+    arc_plot = cell2mat(p_kite_W) + cell2mat(func(mod(chi_parallel{1}, 2*pi):0.01:mod(Chi_cmd{1}, 2*pi), Va*0.8));
+    plot3(arc_plot(1,:), arc_plot(2,:), arc_plot(3,:), 'b', 'LineWidth', 3)
+    
+    x_tau = cell2mat(func(0, Va));
+    quiver3(p_kite_W{1},p_kite_W{2},p_kite_W{3},x_tau(1),x_tau(2),x_tau(3), 'k', 'LineWidth', 3)
+
+    % Plot geodesic
+    geo = [cell2mat(p_kite_W), cell2mat(p_C_W)];
+    plot3(geo(1,:), geo(2,:), geo(3,:), 'k:', 'LineWidth', 3);
+    
+    % Plot tangent
+    scale = 100;
+    quiver3(p_kite_W{1},p_kite_W{2},p_kite_W{3},scale*t_W{1},scale*t_W{2},scale*t_W{3}, 'r', 'LineWidth', 3)
+    quiver3(p_C_W{1},p_C_W{2},p_C_W{3},scale*t_W{1},scale*t_W{2},scale*t_W{3}, 'r', 'LineWidth', 3)
+
 
     % plot current velocity
-    if length(p_kite_W{1}) == length(v_kite_W{1})
-        quiver3(p_kite_W{1},p_kite_W{2},p_kite_W{3},v_kite_W{1},v_kite_W{2},v_kite_W{3})
-    end
+%     if length(p_kite_W{1}) == length(v_kite_W{1})
+%         quiver3(p_kite_W{1},p_kite_W{2},p_kite_W{3},v_kite_W{1},v_kite_W{2},v_kite_W{3})
+%     end
     
     % visualize velocity at tangent of desired point
     quiver3(p_C_W{1},p_C_W{2},p_C_W{3},t_W{1},t_W{2},t_W{3})
+
+    % Create textbox
+    annotation(figure1,'textbox',...
+        [0.345642857142853,0.538095238095242,0.032928571428571,0.054761904761905],...
+        'String','$\mathbf{t}$',...
+        'FontSize',20,...
+        'FitBoxToText','off',...
+        'EdgeColor','none', ...
+        'Interpreter','latex');
+
+    % Create textbox
+    annotation(figure1,'textbox',...
+        [0.600971428571426,0.652428571428573,0.0329,0.0548],...
+        'String','$\sigma$',...
+        'FontSize',20,...
+        'FitBoxToText','off',...
+        'EdgeColor','none', ...
+        'Interpreter','latex');
+
+    % Create textbox
+    annotation(figure1,'textbox',...
+        [0.556357142857136,0.566666666666674,0.032928571428571,0.054761904761906],...
+        'String','$\chi_{\parallel}$',...
+        'FontSize',20,...
+        'FitBoxToText','off',...
+        'EdgeColor','none', ...
+        'Interpreter','latex');
+
+    % Create textbox
+    annotation(figure1,'textbox',...
+        [0.568857142857136,0.423809523809532,0.032928571428571,0.054761904761905],...
+        'String','$\Delta\chi$',...
+        'FontSize',20,...
+        'FitBoxToText','off',...
+        'EdgeColor','none', ...
+        'Interpreter','latex');
+
+    % Create textbox
+    annotation(figure1,'textbox',...
+        [0.715285714285713,0.576190476190479,0.032928571428571,0.054761904761905],...
+        'String','$x_\tau$',...
+        'FontSize',20,...
+        'FitBoxToText','off',...
+        'EdgeColor','none', ...
+        'Interpreter','latex');
 end
 end
