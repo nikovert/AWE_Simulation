@@ -25,6 +25,7 @@
 
 %% Add relevant files to path
 addpath('../')
+addpath(genpath('../../simulink/simFiles')); 
 addToolbox;
     
 filename = 'main_run.mat';
@@ -49,9 +50,9 @@ initialState = [s, sigma, h_tau, Va, chi_a, gamma_a, tether_diff]';
 
 %% Grid 
 %                   s,sigma,   h_tau,     Va,     chi_a,    gamma_a,  tether_diff (not normalised)
-N        = [       31;    7;       7;      9;        10;         11;     9];
+N        = [       27;    7;       8;      9;        10;         11;    13];
 grid_min = [     0/a0;  -45;  200/h0;  20/v0;    -pi/a0;   -pi/3/a0; -1e-3]; 
-grid_max = [  2*pi/a0;   45;  600/h0;  40/v0;     pi/a0;    pi/3/a0;  7e-3];
+grid_max = [  2*pi/a0;   45;  750/h0;  40/v0;     pi/a0;    pi/3/a0;  7e-3];
 pdDims   = [1 5];
 process  = true;
 % N = N(1:end-1);
@@ -82,20 +83,24 @@ mu_a    = 0.0;
 u = {alpha, mu_a};
 [~, ~, max_F_tether] = sys.dynamics(0, grid.xs, u);
 Ft_ground_norm = norm_cellVec(max_F_tether)/1e+03;
+clear max_F_tether
 
 mask_force = (Ft_ground_norm - sys.F_T_max)/max(abs(Ft_ground_norm(:) - sys.F_T_max));
+clear Ft_ground_norm
 
-mask_bndry = -inf(size(mask_force));
-for i = 1 : grid.dim
-  if any(i==pdDims)
-      continue
-  end
-  mask_bndry = max(mask_bndry, grid.xs{i} - grid.max(i));
-  mask_bndry = max(mask_bndry, grid.min(i) - grid.xs{i});
-end
-
-mask = shapeIntersection(mask_force,mask_bndry);
+% mask_bndry = -inf(size(mask_force));
+% for i = 1 : grid.dim
+%   if any(i==pdDims)
+%       continue
+%   end
+%   mask_bndry = max(mask_bndry, grid.xs{i} - grid.max(i));
+%   mask_bndry = max(mask_bndry, grid.min(i) - grid.xs{i});
+% end
+% 
+% mask = shapeIntersection(mask_force,mask_bndry);
 mask = mask_force;
+clear mask_force
+
 assert(eval_u(grid, mask, initialState(1:grid.dim), 'linear') <= 0);
 
 %% Define Target States
@@ -105,12 +110,12 @@ targetDistanceArgs.headingOnly = true;
 targetDistanceArgs.normalize = false;
 targetDistanceArgs.direction = sys.curve_direction;
 %targetDistanceArgs.h_tau = 250;
-[distance, sol,p_C_W, p_kite_W] = sys.getTargetdistance(grid.xs, targetDistanceArgs);
+[distance, ~, p_C_W, p_kite_W] = sys.getTargetdistance(grid.xs, targetDistanceArgs);
 distance_sort = sort(distance(:));
 data0 = distance-distance_sort(floor(length(distance_sort)/10)); % Make sure 10 percent of points are in the starting set
 
 %% Clean up unused large sets
-clear distance_sort distance mask_force mask_bndry Ft_ground_norm max_F_tether
+clear distance_sort distance
 %% Sanity check
 if false
     long  = linspace(grid.min(1), grid.max(1), 60);
@@ -194,12 +199,14 @@ disp('Saving workspace')
 save(filename, '-v7.3')
 
 extraArgs.saveFile = true;
-recast_to_new_grid = true;
+recast_to_new_grid = false;
 
 if recast_to_new_grid
-    N        = [       35;   9;       9;      9;        10;         11;     11]; 
+    N        = [       35;   9;       9;      9;        10;         11;     13]; 
     clear data0 mask sol
     extraArgs.newgrid = createGrid(grid_min, grid_max, N, pdDims);
+else
+    clear data0 mask sol
 end
 
 if HJIextraArgs.keepLast
