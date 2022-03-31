@@ -19,12 +19,19 @@ addToolbox;
 load('main_run.mat')
 
 %% Plot Value function
+if isfield(HJIextraArgs, 'keepLast') && HJIextraArgs.keepLast
+    HJIextraArgs.data0 = data0;
+end
 plotHJIPDE(grid, data, HJIextraArgs)
 
 %% Functions
 function extraOuts = plotHJIPDE(g, data, extraArgs)
     clns = repmat({':'}, 1, g.dim);
-    [gPlot, dataPlot] = proj(g, data(clns{:}, 1), ~extraArgs.visualize.plotData.plotDims, extraArgs.visualize.plotData.projpt);
+    if isfield(extraArgs, 'keepLast') && extraArgs.keepLast
+        [gPlot, dataPlot] = proj(g, extraArgs.data0, ~extraArgs.visualize.plotData.plotDims, extraArgs.visualize.plotData.projpt);
+    else
+        [gPlot, dataPlot] = proj(g, data(clns{:}, 1), ~extraArgs.visualize.plotData.plotDims, extraArgs.visualize.plotData.projpt);
+    end
     pDims = nnz(extraArgs.visualize.plotData.plotDims);
     
     % Create figure
