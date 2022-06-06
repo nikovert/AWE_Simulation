@@ -159,5 +159,5 @@ function [V,F,facecolors] = defineVehicleBody
         11,12,13,14;...
         15,16,17,18;...
         ];
-    facecolors = [1,0,0];
+    facecolors = [0.5,0.5,0.5];
 end
