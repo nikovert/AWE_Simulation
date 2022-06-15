@@ -1,6 +1,6 @@
 # AWE_Simulation
 
-This Repo provides both the code used for controller synthesis as well as the simulation framework used for testing. The accompanying paper is available as a preprint here: ('https://www.vertovec.info/publication/safety-aware-hybrid-control-of-airborne-wind-energy-systems/')
+This Repo provides both the code used for controller synthesis as well as the simulation framework used for testing. The accompanying paper is available as a preprint  [here](https://www.vertovec.info/publication/safety-aware-hybrid-control-of-airborne-wind-energy-systems/)
 
 ## Abstract
 
