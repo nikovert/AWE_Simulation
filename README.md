@@ -1,6 +1,6 @@
 # AWE_Simulation
 
-This Repo provides both the code used for controller synthesis as well as the simulation framework used for testing. The accompanying paper is available as a preprint  [here](https://www.vertovec.info/publication/safety-aware-hybrid-control-of-airborne-wind-energy-systems/)
+This Repo provides both the code used for controller synthesis as well as the simulation framework used for testing. The accompanying paper is available as a preprint  [here](https://www.vertovec.info/publication/safety-aware-hybrid-control-of-airborne-wind-energy-systems/).
 
 ## Abstract
 
@@ -21,7 +21,7 @@ To generate the control lookup table used by Simulink, you need to run the follo
 ```
 hj_reachability/awe/main.m
 ```
-Depending on your computer specs, you made need to adjust the grid size to account for memory constraints. Note that a too small grid, will result in an inaccurate BRS calculation, which might make the controller underperform. During execution, a file called tables.mat will be created, which will be used by the Simulink Simulation.
+Depending on your computer specs, you may need to adjust the grid size to account for memory constraints. Note that a too small grid, will result in an inaccurate BRS calculation, which might make the controller underperform. During execution, a file called tables.mat will be created, which will be used by the Simulink Simulation.
 
 Having generated the control lookup table, the Simulation can be run by executing 
 ```
@@ -30,7 +30,7 @@ simulink/run_sim.m
 
 ## Authors
 
-The coding for this piece of research was done by Nikolaus Vertovec, and builds on top of the work of Berkley Hybrid Systems Lab, which developed the level-set-methods toolbox as well as the doctoral work of Sebastian Rapp (http://awesco.eu/project/esr02/).
+The coding for this piece of research was done by Nikolaus Vertovec, and builds on top of the work of Berkley Hybrid Systems Lab, which developed the level-set-methods toolbox as well as the doctoral work of Sebastian Rapp, who coded to much of the underlying simulation framework and NDI controller (http://awesco.eu/project/esr02/).
 
 ## License
 
