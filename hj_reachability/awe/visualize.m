@@ -13,7 +13,7 @@
 % :Revision: 14-December-2021
 % :Author: Nikolaus Vertovec (nikolaus.vertovec@eng.ox.ac.uk)
 
-function visualize(x, u, windDirection)
+function visualize(x, u, windDirection, scale)
 %VISUALIZE Summary of this function goes here
 %   Detailed explanation goes here
     persistent Vertices
@@ -24,6 +24,9 @@ function visualize(x, u, windDirection)
     
     if nargin < 3
         windDirection = pi;
+    end
+    if nargin < 4
+        scale = 15;
     end
     
     long    = x(1);
@@ -63,7 +66,7 @@ function visualize(x, u, windDirection)
     [pos_x,pos_y,pos_z] = sph2cart(long,lat,h_tau);
     pos_O = [pos_x;pos_y;pos_z];
     
-    [Vertices, Faces, facecolors] = defineVehicleBody;
+    [Vertices, Faces, facecolors] = defineVehicleBody(scale);
     
     vehicle_handle = drawVehicleBody(Vertices, Faces, facecolors,...
          -pos_O(1), pos_O(2), -pos_O(3), phi, theta, psi, ...
@@ -109,8 +112,10 @@ function pts = translate(pts, pn, pe, pd)
     pts = pts + repmat([pn;pe;pd], 1, size(pts,2));
 end
 
-function [V,F,facecolors] = defineVehicleBody
-    scale = 15;
+function [V,F,facecolors] = defineVehicleBody(scale)
+    if nargin<1
+        scale = 15;
+    end
     b_wing = 3.7*scale;
     c_wing = 0.22*scale;
     L_fuse = 1*scale;
