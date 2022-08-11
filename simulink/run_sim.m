@@ -46,6 +46,7 @@ turbulence = true;
 currentFile = mfilename( 'fullpath' );
 [pathstr,~,~] = fileparts( currentFile );
  
+addpath('../hj_reachability/dynSys/')
 load([pathstr, '/../hj_reachability/awe/tables.mat'])
  
 random_seed = [ 24335       17059       17670        1747]; %random_seed_mat(idx,:); 

@@ -56,6 +56,10 @@ end
 
 alpha_table = zeros([N tauLength], 'single');
 mu_table    = zeros([N tauLength], 'single');
+d1_table    = zeros([N tauLength], 'single');
+d2_table    = zeros([N tauLength], 'single');
+d3_table    = zeros([N tauLength], 'single');
+d4_table    = zeros([N tauLength], 'single');
 I_table     = zeros([N tauLength], 'uint8');
 
 alpha_options = dynSys.alpha_options;
@@ -70,7 +74,6 @@ alpha_min = dynSys.alpha_min;
 for t = 1:tauLength
     BRS_at_t = data(clns{:}, t);
     Deriv = computeGradients(g, BRS_at_t, true(g.dim, 1), derivFunc);
-    
     
     q4 = round(Deriv{4}(:), 6);
     q5 = round(Deriv{5}(:), 6)/dynSys.a0;
@@ -111,6 +114,17 @@ for t = 1:tauLength
     alpha_table(clns{:}, t) = alpha;
     mu_table(clns{:}, t)    = mu;
     I_table(clns{:}, t)     = I;
+
+    % disturbances
+    dOpt = dynSys.optDstb(t, g.xs, Deriv);
+    [~, dOpt{1}] = augmentPeriodicData(g, dOpt{1});
+    [~, dOpt{2}] = augmentPeriodicData(g, dOpt{2});
+    [~, dOpt{3}] = augmentPeriodicData(g, dOpt{3});
+    [~, dOpt{4}] = augmentPeriodicData(g, dOpt{4});
+    d1_table(clns{:}, t)    = single(dOpt{1});
+    d2_table(clns{:}, t)    = single(dOpt{2});
+    d3_table(clns{:}, t)    = single(dOpt{3});
+    d4_table(clns{:}, t)    = single(dOpt{4});
 end
 
 [~, dataf_bool] = augmentPeriodicData(g, int8(data(:,:,:,:,:,:,:,end)<0));
@@ -118,7 +132,10 @@ end
 max_tether_diff_dot = dynSys.max_tether_diff_dot;
 
 if isfield(extraArgs, 'saveFile') && extraArgs.saveFile
-    save('tables.mat', 'dataf_bool', 'I_table', 'alpha_options', 'mu_options', 'alpha_max', 'alpha_min', 'mu_max', 'mu_min', 'grid_min', 'grid_max', 'dx', 'max_tether_diff_dot', '-v7.3');
+    save('tables.mat', 'dataf_bool', 'I_table', 'alpha_options', ...
+        'mu_options', 'alpha_max', 'alpha_min', 'mu_max', 'mu_min', ...
+        'grid_min', 'grid_max', 'dx', 'max_tether_diff_dot',...
+        'd1_table', 'd2_table', 'd3_table', 'd4_table', '-v7.3');
 end
 end
 

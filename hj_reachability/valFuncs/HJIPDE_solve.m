@@ -978,8 +978,31 @@ if isfield(extraArgs, 'addGaussianNoiseStandardDeviation')
     schemeData.innerData = { detData; stochasticData };
 end
 
+%% Additive terms for Discount term (used for CBF calculation)
+if isfield(extraArgs, 'lambdaDiscount')
+    % We are taking all the previous scheme terms and adding noise to it
+    % Save all the previous terms as the deterministic component in detFunc
+    detFunc = schemeFunc;
+    detData = schemeData;
+    % The full computation scheme will include this added term so clear
+    % out the schemeFunc so we can pack everything back in later with the
+    % new stuff
+    clear schemeFunc schemeData;
+    
+    % Create the Hessian term corresponding to white noise diffusion
+    discountFunc = @termDiscount;
+    discountData.grid = g;
+    discountData.lambda = extraArgs.lambdaDiscount;
+    
+    % Add the (saved) deterministic terms and the (new) stochastic term
+    % together into the complete scheme
+    schemeFunc = @termSum;
+    schemeData.innerFunc = { detFunc; discountFunc};
+    schemeData.innerData = { detData; discountData};
+end
 %% Initialize PDE solution
 data0size = size(data0);
+uses_single = true;
 
 if numDims(data0) == gDim
     % New computation
@@ -987,6 +1010,9 @@ if numDims(data0) == gDim
         data = data0;
     elseif lowMemory
         data = distributed(single(data0));
+    elseif uses_single
+        data = zeros([data0size(1:gDim) length(tau)], 'single');
+        data(clns{:}, 1) = single(data0);
     else
         data = zeros([data0size(1:gDim) length(tau)], class(data0));
         data(clns{:}, 1) = data0;
@@ -999,6 +1025,9 @@ elseif numDims(data0) == gDim + 1
         data = data0(clns{:}, data0size(end));
     elseif lowMemory
         data = single(data0(clns{:}, data0size(end)));
+    elseif uses_single
+        data = zeros([data0size(1:gDim) length(tau)], class(data0), 'single');
+        data(clns{:}, 1:data0size(end)) = single(data0);
     else
         data = zeros([data0size(1:gDim) length(tau)], class(data0));
         data(clns{:}, 1:data0size(end)) = data0;
@@ -1049,7 +1078,11 @@ for i = istart:length(tau)
     else
         y0 = data(clns{:}, i-1);
     end
-    y = y0(:);
+    if uses_single
+        y = double(y0(:));
+    else
+        y = y0(:);
+    end
     
     
     tNow = tau(i-1);
@@ -1244,7 +1277,8 @@ for i = istart:length(tau)
         else
             data = cat(g.dim+1, data, reshape(y, g.shape));
         end
-        
+    elseif uses_single
+        data(clns{:}, i) = single(data_i);
     else
         data(clns{:}, i) = data_i;
     end
