@@ -15,6 +15,14 @@
 
 clear
 close all
+
+conference_mode = true;
+if conference_mode
+    main_color =[1 1 1];
+else
+    main_color =[0 0 0];
+end
+
 %% Grid setup
 h0 = 1;
 v0 = 1;
@@ -69,9 +77,9 @@ zlabel('Z','Visible','off')
 %% Plot curve in Fig 1
 set(0,'CurrentFigure',h1)
 
-scatter3(points(1,:), points(2,:), points(3,:), 20)
+scatter3(points(1,:), points(2,:), points(3,:), 20, 'Color', main_color)
 [X,Y,Z] = sphere(55);
-surf(X*h_tau,Y*h_tau,Z*h_tau, 'FaceAlpha', 0.15, 'EdgeColor', [0.741176470588235 0.733333333333333 0.733333333333333], ...
+surf(X*h_tau,Y*h_tau,Z*h_tau, 'FaceAlpha', 0.15, 'EdgeColor', abs(main_color-[0.741176470588235 0.733333333333333 0.733333333333333]), ...
     'FaceColor','none','LineStyle', '--', 'Parent',axes1)
 line([0 0], [0 0], [h_tau 0],'Color','red','LineStyle','--', 'Parent',axes1,'LineWidth', 2)
 line([0 0], [h_tau -h_tau], [0 0],'Color','red','LineStyle','--', 'Parent',axes1,'LineWidth', 2)
@@ -80,9 +88,9 @@ line([h_tau 0], [0 0], [0 0],'Color','red','LineStyle','--', 'Parent',axes1,'Lin
 %% Plot curve in Fig 2
 set(0,'CurrentFigure',h2)
 
-scatter3(points(1,:), points(2,:), points(3,:), 20)
+scatter3(points(1,:), points(2,:), points(3,:), 20, 'Color', main_color)
 [X,Y,Z] = sphere(55);
-surf(X*h_tau,Y*h_tau,Z*h_tau, 'FaceAlpha', 0.15, 'EdgeColor', [0.741176470588235 0.733333333333333 0.733333333333333], ...
+surf(X*h_tau,Y*h_tau,Z*h_tau, 'FaceAlpha', 0.15, 'EdgeColor', abs(main_color-[0.741176470588235 0.733333333333333 0.733333333333333]), ...
     'FaceColor','none','LineStyle', '--', 'Parent',axes2)
 line([0 0], [0 0], [h_tau 0],'Color','red','LineStyle','--', 'Parent',axes2,'LineWidth', 2)
 line([0 0], [h_tau -h_tau], [0 0],'Color','red','LineStyle','--', 'Parent',axes2,'LineWidth', 2)
@@ -97,7 +105,10 @@ sigma = linspace(grid_min(2), grid_max(2), N(2));
 [long, lat] = getLongLat(S, SIGMA, h_tau, extraArgs);
 
 [x,y,z] = sph2cart(long(:),lat(:),h_tau);
-scatter3(x, y, z, 40, 'ko', 'filled')
+scatter3(x, y, z, 40, 'o', 'filled', 'Color', main_color)
+if conference_mode
+    set(gcf, 'color', '#002147');
+end
 %% Plot long/lat grid
 set(0,'CurrentFigure',h2)
 long = linspace(min(long(:)), max(long(:)), N(1));
@@ -105,4 +116,8 @@ lat = linspace(min(lat(:)), max(lat(:)), N(2));
 [LONG, LAT] = meshgrid(long,lat);
 
 [x,y,z] = sph2cart(LONG(:),LAT(:),h_tau);
-scatter3(x, y, z, 40,'ko' , 'filled')
+scatter3(x, y, z, 40, 'o', 'filled', 'Color', main_color)
+
+if conference_mode
+    set(gcf, 'color', '#002147');
+end
