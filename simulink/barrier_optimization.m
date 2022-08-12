@@ -13,155 +13,70 @@
 % :Revision: 04-December-2022
 % :Author: Nikolaus Vertovec (nikolaus.vertovec@eng.ox.ac.uk)
 
-function [mu_a, alpha_a, g_opt] = barrier_optimization(s, sigma, h_tau, Va, chi_a, gamma_a, tether_diff, d, F_t_W, u_safety, u_NDI, T, ENVMT, P_AP2, base_windspeed, params, PHI_BOOTH, Ft_max, g_opt_prev)
+function [mu_a, alpha_a] = barrier_optimization(Va, u_ref, A, b, P_AP2, constr)
 %BARRIER_OPTIMIZATION compute the optimal compromise betweeen u_safety and
 %u_NDI based on a control barrier function
     
-    x0 = double([s, sigma, h_tau, Va, chi_a, gamma_a, tether_diff, F_t_W]');
-    %dx = dynamics(0, x0, u, d, PHI_BOOTH, T, ENVMT, P_AP2, base_windspeed, params);
-    tspan =double([0 0.1]);
-    options = odeset('RelTol',1e-3,'AbsTol',1e-4, 'MaxStep', 0.1);
-
-    problem.objective = @(g) g;
+    problem.objective = @(u) (u - u_ref)'*(u - u_ref);
     problem.solver = 'fmincon';
-    problem.x0 = g_opt_prev;
-    problem.lb = 0;
-    problem.ub = 1;
+    problem.x0 = u_ref;
+    problem.lb = [constr.mu_a_min constr.alpha_a_min];
+    problem.ub = [constr.mu_a_max constr.alpha_a_max];
     problem.Aineq = [];
     problem.bineq = [];
     problem.Aeq = [];
     problem.beq = [];
-    problem.nonlcon = @(g) nonlconstraint(g, u_safety, u_NDI, d, x0, tspan, Ft_max, PHI_BOOTH, T, ENVMT, P_AP2, base_windspeed, params, options);
-    problem.options = optimoptions('fmincon', 'Display', 'off');
+    problem.nonlcon = @(u) nonlconstraint(u, Va, A, b, P_AP2);
+    problem.options = optimoptions('fmincon', 'Display', 'off','Algorithm','sqp');
 
-    g_opt = fmincon(problem);
-    mu_a    =  (1-g_opt)*u_NDI(1) + g_opt*u_safety(1);
-    alpha_a =  (1-g_opt)*u_NDI(2) + g_opt*u_safety(2);
+    u_robust = fmincon(problem);
+    mu_a    =  u_robust(1);
+    alpha_a =  u_robust(2);
 end
 
-function dx  = dynamics(t, x, u, d, PHI_BOOTH, T, ENVMT, P_AP2, base_windspeed, params)
-    
-    s           = x(1);
-    sigma       = x(2);
-    h_tau       = x(3);
-    va          = x(4);
-    chi_a       = x(5);
-    gamma_a     = x(6);
-    tether_diff = x(7);
-    F_t_W       = x(8);
-    % 
-    alpha       = u(1);
-    mu_a        = u(2);
-    xi          = ENVMT.windDirection_rad;
+function [c,ceq] = nonlconstraint(u, Va, A, b, P_AP2)
+    mu_a    =  u(1);
+    alpha =  u(2);
+    F_a_Abar = computeFa(Va, alpha, mu_a, P_AP2);
 
-    direction = params.direction;
-    [long, lat, t_tau, t_rot_tau] = getLongLat(s, sigma, h_tau, PHI_BOOTH, params);
-    
-    vw = base_windspeed * log(3.281 * h_tau .* sin(lat)/0.15)/log(20/0.15);
-    v_w_O = [cos(xi) * vw; sin(xi) * vw; 0];
+    c = double(-(A'*F_a_Abar+b));
+    ceq = 0;
+end
 
-    beta     = 0;
+function F_a_Abar = computeFa(Va, alpha, mu_a, P_AP2)
     % Rotational Rates
-    p = 0; 
-    q = 0;
+    p =0; 
+    q = 0; %-0.1202; 
     r = 0; 
     
-    % Hardcoded for now
+    beta = 0; 
+    
     delta_a = 0; 
-    delta_e = -0.092174717977942;
+    delta_e = -0.092174717977942; % apparently has quite an impact on the Cx coefficient, hardcoded for now
     delta_r = 0; 
-    
-    %% Define rotation matrix
-    M_AbarA = [1,0,0; 
-               0, cos(mu_a), -sin(mu_a); 
-               0, sin(mu_a), cos(mu_a)];
-    
-    M_AB = [cos(alpha) .* cos(beta), sin(beta), sin(alpha) .* cos(beta); 
-        -cos(alpha) .* sin(beta), cos(beta), -sin(alpha) .* sin(beta); 
-        -sin(alpha), 0, cos(alpha)];
     
     %% Force coefficients 
     % Cx calculation
-    Cx_0 = P_AP2.Cx_0_0 + P_AP2.Cx_0_alpha * alpha + P_AP2.Cx_0_alpha2 * alpha.^2; 
-    Cx_q = P_AP2.Cx_q_0 + P_AP2.Cx_q_alpha * alpha + P_AP2.Cx_q_alpha2 * alpha.^2; 
-    Cx_deltaE  = P_AP2.Cx_deltaE_0  + P_AP2.Cx_deltaE_alpha * alpha + P_AP2.Cx_deltaE_alpha2 * alpha.^2; 
-    Cx = Cx_0 + Cx_q*P_AP2.c*q./(2*va) + Cx_deltaE*delta_e; 
+    Cx_0 = P_AP2.Cx_0_0 + P_AP2.Cx_0_alpha * alpha + P_AP2.Cx_0_alpha2 * alpha^2; 
+    Cx_q = P_AP2.Cx_q_0 + P_AP2.Cx_q_alpha * alpha + P_AP2.Cx_q_alpha2 * alpha^2; 
+    Cx_deltaE  = P_AP2.Cx_deltaE_0  + P_AP2.Cx_deltaE_alpha * alpha + P_AP2.Cx_deltaE_alpha2 * alpha^2; 
+    Cx = Cx_0 + Cx_q*P_AP2.c*q/(2*Va) + Cx_deltaE*delta_e; 
     
     % Cy calculation
-    Cy_beta = P_AP2.Cy_beta_0 + P_AP2.Cy_beta_alpha * alpha + P_AP2.Cy_beta_alpha2 * alpha.^2; 
-    Cy_p = P_AP2.Cy_p_0  + P_AP2.Cy_p_alpha * alpha + P_AP2.Cy_p_alpha2 * alpha.^2;  
-    Cy_r = P_AP2.Cy_r_0  + P_AP2.Cy_r_alpha * alpha + P_AP2.Cy_r_alpha2 * alpha.^2;  
-    Cy_deltaA = P_AP2.Cy_deltaA_0 + P_AP2.Cy_deltaA_alpha * alpha + P_AP2.Cy_deltaA_alpha2 * alpha.^2;  
-    Cy_deltaR = P_AP2.Cy_deltaR_0 + P_AP2.Cy_deltaR_alpha * alpha + P_AP2.Cy_deltaR_alpha2 * alpha.^2;  
-    Cy = Cy_beta*beta + Cy_p*P_AP2.b*p./(2*va) + Cy_r*P_AP2.b*r./(2*va) + Cy_deltaA*delta_a + Cy_deltaR*delta_r;
+    Cy_beta = P_AP2.Cy_beta_0 + P_AP2.Cy_beta_alpha * alpha + P_AP2.Cy_beta_alpha2 * alpha^2; 
+    Cy_p = P_AP2.Cy_p_0  + P_AP2.Cy_p_alpha * alpha + P_AP2.Cy_p_alpha2 * alpha^2;  
+    Cy_r = P_AP2.Cy_r_0  + P_AP2.Cy_r_alpha * alpha + P_AP2.Cy_r_alpha2 * alpha^2;  
+    Cy_deltaA =P_AP2.Cy_deltaA_0 + P_AP2.Cy_deltaA_alpha * alpha + P_AP2.Cy_deltaA_alpha2 * alpha^2;  
+    Cy_deltaR =P_AP2.Cy_deltaR_0 + P_AP2.Cy_deltaR_alpha * alpha + P_AP2.Cy_deltaR_alpha2 * alpha^2;  
+    Cy = Cy_beta*beta + Cy_p*P_AP2.b*p/(2*Va) + Cy_r*P_AP2.b*r/(2*Va) + Cy_deltaA*delta_a + Cy_deltaR*delta_r;
     
     % Cz calculation
     Cz_0 = P_AP2.Cz_0_0 + P_AP2.Cz_0_alpha * alpha + P_AP2.Cz_0_alpha2 * alpha.^2; 
-    Cz_q = P_AP2.Cz_q_0 + P_AP2.Cz_q_alpha * alpha + P_AP2.Cz_q_alpha2 * alpha.^2; 
-    Cz_deltaE  = P_AP2.Cz_deltaE_0 + P_AP2.Cz_deltaE_alpha * alpha + P_AP2.Cz_deltaE_alpha2 * alpha.^2; 
-    Cz = Cz_0 + Cz_q*P_AP2.c*q./(2*va) + Cz_deltaE*delta_e; 
+    Cz_q = P_AP2.Cz_q_0 + P_AP2.Cz_q_alpha * alpha + P_AP2.Cz_q_alpha2 * alpha^2; 
+    Cz_deltaE  = P_AP2.Cz_deltaE_0 + P_AP2.Cz_deltaE_alpha * alpha + P_AP2.Cz_deltaE_alpha2 * alpha^2; 
+    Cz = Cz_0 + Cz_q*P_AP2.c*q/(2*Va) + Cz_deltaE*delta_e; 
     
-    %% Translation Dynamics 
-    M_tauW = [-sin(lat) .* cos(long), -sin(lat) .* sin(long), cos(lat);
-              -sin(long)            , cos(long)             , 0;
-              -cos(lat) .* cos(long), -cos(lat) .* sin(long), -sin(lat) ];
+    F_a_B = 0.5*Va^2*P_AP2.S_ref*1.225* [Cx;Cy; Cz];
     
-    M_AbarO = [cos(chi_a) .* cos(gamma_a), sin(chi_a) .* cos(gamma_a), -sin(gamma_a); 
-              -sin(chi_a),                 cos(chi_a),                             0; 
-               cos(chi_a) .* sin(gamma_a), sin(chi_a) .* sin(gamma_a), cos(gamma_a)];
-    M_OAbar = M_AbarO';
-    
-    M_OW = [cos(xi),  sin(xi),  0; 
-            sin(xi), -cos(xi),  0; 
-            0,              0, -1];
-    M_WO = M_OW; 
-    
-    v_a_O = M_OAbar * [va;0;0];
-    v_k_O = v_a_O + v_w_O; 
-    v_k_W = M_WO * v_k_O; 
-    v_k_W = v_k_W + d(2:4);
-    
-    v_k_tau = M_tauW * v_k_W;
-    
-    
-    s_dot     = 2*pi/945 * t_tau'*v_k_tau./ (direction*norm(t_tau));
-    sigma_dot = t_rot_tau'*v_k_tau./ (norm(t_tau));
-    
-    long_dot = (v_k_tau(2))./( abs(h_tau).*cos(lat));
-    lat_dot = (v_k_tau(1))./abs(h_tau);
-    h_tau_dot = -(v_k_tau(3));
-    
-    [pos_W_x,pos_W_y,pos_W_z] = sph2cart(long, lat, h_tau);
-    pos_W = [pos_W_x; pos_W_y; pos_W_z];
-    %% Calculate Aerodynamic Forces and Moments
-    F_a_B = 0.5 * P_AP2.S_ref * 1.225*(va).^2 * [Cx;Cy; Cz];
-    F_a_A = M_AB * F_a_B;
-    
-    %% All Forces except Aero
-    % x_W = [long; lat; h_tau; long_dot; lat_dot; h_tau_dot; tether_diff];
-    % [f_kite_G_approx , final_seg_diff_dot] = tether_forces(x_W, P_AP2, ENVMT, T, base_windspeed);
-    %tether_diff_dot = final_seg_diff_dot - l_s_dot;
-    % F_t_W_approx = -1 * f_kite_G_approx;
-    
-    tether_diff_dot = d(1);
-
-    f_kite_G_O = M_OW * F_t_W;
-    F_rest_Abar = M_AbarO * ([0;0;P_AP2.mass * ENVMT.g] + f_kite_G_O);
-    
-    %% Combine all forces
-    Ftot_Abar = M_AbarA * F_a_A + F_rest_Abar;
-    
-    va_dot = 1/P_AP2.mass * Ftot_Abar(1);
-    chi_a_dot  = 1/P_AP2.mass * 1/(va .* cos(gamma_a)) .* Ftot_Abar(2);
-    gamma_a_dot = 1/P_AP2.mass * -1/(va) .* Ftot_Abar(3);
-    dx = double([s_dot, sigma_dot, h_tau_dot, va_dot, chi_a_dot, gamma_a_dot, tether_diff_dot, T.c0 * tether_diff_dot]');
-end
-
-function [c,ceq] = nonlconstraint(g, u_safety, u_NDI, d, x0, tspan, Ft_max, PHI_BOOTH, T, ENVMT, P_AP2, base_windspeed, params, options)
-    u = (1-g)*u_safety + g*u_NDI;
-    [~, x] = ode23(@(t,x) dynamics(t, x, u, d, PHI_BOOTH, T, ENVMT, P_AP2, base_windspeed, params), tspan, x0, options);
-    rho = Ft_max-x(:,end);
-    h = min(rho);
-    c = -h;
-    ceq = 0;
+    F_a_Abar = transformFromBtoAbar( mu_a, alpha, beta,  F_a_B );
 end

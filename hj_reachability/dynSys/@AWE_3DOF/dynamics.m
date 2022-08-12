@@ -24,7 +24,7 @@ function [dx, F_rest, max_F_tether] = dynamics(obj, ~, x, u, d)
 %     va      - apparent wind speed in the A_bar (rotated aerodynamic frame) frame
 %     chi_a   - course angle in the A_bar frame
 %     gamma_a - path angle in the A_bar frame
-%     l_s     - tether segment length
+%     Delta t - tether segment difference
 %
 % INPUTS
 %     alpha_a - aerodynamic bank angle defined in the A_bar frame

@@ -10,7 +10,7 @@
 %     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %     GNU General Public License for more details.
 %
-% :Revision: 11-August-2021
+% :Revision: 11-August-2022
 % :Author: Nikolaus Vertovec (nikolaus.vertovec@eng.ox.ac.uk)
 
 %% Readme
@@ -28,13 +28,13 @@ addpath('../')
 addpath(genpath('../../simulink/simFiles')); 
 addToolbox;
     
-filename = 'main_run.mat';
+filename = 'mainCBF_run.mat';
 
 %% Settings
 visualize_contour = true;
 %% Setup sys
 
-% Normalisation parameter
+% Normalisation parameter (hasn't been checked in a while)
 h0 = 1;
 v0 = 1;
 a0 = 1;
@@ -50,7 +50,7 @@ initialState = [s, sigma, h_tau, Va, chi_a, gamma_a, tether_diff]';
 
 %% Grid 
 %                   s,sigma,   h_tau,     Va,     chi_a,    gamma_a,  tether_diff (not normalised)
-N        = [       27;    7;       8;      9;        10;         11;    13];
+N        = [       7;    7;       6;      7;        6;         7;      7];
 grid_min = [     0/a0;  -45;  200/h0;  20/v0;    -pi/a0;   -pi/3/a0; -1e-3]; 
 grid_max = [  2*pi/a0;   45;  750/h0;  40/v0;     pi/a0;    pi/3/a0;  7e-3];
 pdDims   = [1 5];
@@ -103,19 +103,8 @@ clear mask_force
 
 assert(eval_u(grid, mask, initialState(1:grid.dim), 'linear') <= 0);
 
-%% Define Target States
-targetDistanceArgs.Lem = Lem;
-targetDistanceArgs.distanceOnly = false;
-targetDistanceArgs.headingOnly = true;
-targetDistanceArgs.normalize = false;
-targetDistanceArgs.direction = sys.curve_direction;
-%targetDistanceArgs.h_tau = 250;
-[distance, ~, p_C_W, p_kite_W] = sys.getTargetdistance(grid.xs, targetDistanceArgs);
-distance_sort = sort(distance(:));
-data0 = distance-distance_sort(floor(length(distance_sort)/10)); % Make sure 10 percent of points are in the starting set
+data0 = mask; % Make sure 10 percent of points are in the starting set
 
-%% Clean up unused large sets
-clear distance_sort distance
 %% Sanity check
 if false
     long  = linspace(grid.min(1), grid.max(1), 60);
@@ -145,7 +134,7 @@ end
 % Put grid and dynamic systems into schemeData
 schemeData.grid = grid;
 schemeData.dynSys = sys;
-schemeData.accuracy = 'medium'; %set accuracy
+schemeData.accuracy = 'low'; %set accuracy
 schemeData.uMode = 'min';
 schemeData.dMode = 'max';
 schemeData.dissType = 'local';
@@ -189,8 +178,8 @@ HJIextraArgs.lowMemory = false; % lowMemory is already implemented
 HJIextraArgs.factorCFL = 0.8;
 %% Set up time vector
 t0   = 0;
-tMax = 0.1;
-dt   = 0.05; 
+tMax = 0.05;
+dt   = 0.01; 
 tau  = t0:dt:tMax;
 
 %% Solve
@@ -202,6 +191,10 @@ disp('Saving workspace')
 save(filename, '-v7.3')
 
 extraArgs.saveFile = true;
+extraArgs.lambdaDiscount = HJIextraArgs.lambdaDiscount;
+extraArgs.pdDims = pdDims;
+
+
 recast_to_new_grid = false;
 
 if recast_to_new_grid
@@ -212,9 +205,4 @@ else
     clear data0 mask sol
 end
 
-if HJIextraArgs.keepLast
-    [alpha_table, mu_table, I_table] = generate_lookup_table(grid, data, 1, sys, extraArgs);
-    return
-else
-    [alpha_table, mu_table, I_table] = generate_lookup_table(grid, flip(data,length(grid.N)+1), 1, sys, extraArgs);
-end
+[A1_table, A3_table ,A2_table, b_table] = generate_CBF_LMI(grid, flip(data,length(grid.N)+1), tau, sys, extraArgs);
