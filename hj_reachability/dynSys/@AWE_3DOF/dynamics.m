@@ -54,10 +54,10 @@ if ~iscell(d)
     d = num2cell(d, 2)';
 end
 %% Define states and inputs (remove this step later for speed up)
-h_tau    = x{3};
-va       = x{4};
-chi_a    = x{5} * obj.a0;
-gamma_a  = x{6} * obj.a0;
+h_tau    = single(x{3});
+va       = single(x{4});
+chi_a    = single(x{5}) * obj.a0;
+gamma_a  = single(x{6}) * obj.a0;
 
 if isempty(obj.curve_direction)
     direction = 1;
@@ -72,16 +72,16 @@ end
 extraArgs.direction = direction;
 
 if obj.LongLatState
-    long = x{1}* obj.a0;
-    lat  = x{2}* obj.a0;
+    long = single(x{1})* obj.a0;
+    lat  = single(x{2})* obj.a0;
 else
-    s        = x{1}* obj.a0;
-    sigma    = x{2};
+    s        = single(x{1})* obj.a0;
+    sigma    = single(x{2});
     [long, lat, t_tau, t_rot_tau, t_W, t_rot_W] = getLongLat(s, sigma, obj.h0 * h_tau, extraArgs);
 end
 
 if length(x) > 6
-    tether_diff  = x{7};
+    tether_diff  = single(x{7});
 else
     tether_diff = 0;
 end
@@ -331,18 +331,18 @@ if num
 else 
     dx = cell(obj.nx,1);
     if obj.LongLatState
-        dx{1} = long_dot * obj.v0/obj.h0/obj.a0;
-        dx{2} = lat_dot * obj.v0/obj.h0/obj.a0;
+        dx{1} = double(long_dot * obj.v0/obj.h0/obj.a0);
+        dx{2} = double(lat_dot * obj.v0/obj.h0/obj.a0);
     else
-        dx{1} = s_dot* obj.v0/obj.h0/obj.a0;
-        dx{2} = sigma_dot* obj.v0/obj.h0;
+        dx{1} = double(s_dot* obj.v0/obj.h0/obj.a0);
+        dx{2} = double(sigma_dot* obj.v0/obj.h0);
     end
-    dx{3} = h_tau_dot;
-    dx{4} = va_dot;
-    dx{5} = chi_a_dot/obj.a0;
-    dx{6} = gamma_a_dot/obj.a0;
+    dx{3} = double(h_tau_dot);
+    dx{4} = double(va_dot);
+    dx{5} = double(chi_a_dot/obj.a0);
+    dx{6} = double(gamma_a_dot/obj.a0);
     if(obj.nx > 6)
-        dx{7} = tether_diff_dot* obj.v0/obj.h0;
+        dx{7} = double(tether_diff_dot* obj.v0/obj.h0);
     end
 end
 

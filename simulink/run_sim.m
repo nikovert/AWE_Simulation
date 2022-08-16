@@ -39,7 +39,7 @@ params.direction = -1;
 
 Ft_max = 1870;
 safety_controller = false;
-barrier_certificate = true;
+barrier_certificate = false;
 
 turbulence = true;
 

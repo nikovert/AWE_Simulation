@@ -50,7 +50,7 @@ initialState = [s, sigma, h_tau, Va, chi_a, gamma_a, tether_diff]';
 
 %% Grid 
 %                   s,sigma,   h_tau,     Va,     chi_a,    gamma_a,  tether_diff (not normalised)
-N        = [       7;    7;       6;      7;        6;         7;      7];
+N        = [       7;    7;       8;      9;        10;         11;    13];
 grid_min = [     0/a0;  -45;  200/h0;  20/v0;    -pi/a0;   -pi/3/a0; -1e-3]; 
 grid_max = [  2*pi/a0;   45;  750/h0;  40/v0;     pi/a0;    pi/3/a0;  7e-3];
 pdDims   = [1 5];
@@ -134,7 +134,7 @@ end
 % Put grid and dynamic systems into schemeData
 schemeData.grid = grid;
 schemeData.dynSys = sys;
-schemeData.accuracy = 'low'; %set accuracy
+schemeData.accuracy = 'high'; %set accuracy
 schemeData.uMode = 'min';
 schemeData.dMode = 'max';
 schemeData.dissType = 'local';
@@ -167,7 +167,7 @@ HJIextraArgs.frameRate = 10;
 %% Extra Arguments
 % HJIextraArgs.saveFilename = strrep(filename, '.mat', '_tmp.mat');
 % HJIextraArgs.saveFrequency = 10;
-HJIextraArgs.keepLast = false;
+HJIextraArgs.keepLast = true;
 HJIextraArgs.obstacleFunction = -mask;
 
 % Add gamma term for CBF
@@ -178,13 +178,18 @@ HJIextraArgs.lowMemory = false; % lowMemory is already implemented
 HJIextraArgs.factorCFL = 0.8;
 %% Set up time vector
 t0   = 0;
-tMax = 0.05;
-dt   = 0.01; 
+tMax = 0.1;
+dt   = 0.01;
 tau  = t0:dt:tMax;
 
 %% Solve
-[data, tau2, ~] = ...
+[data, ~, ~] = ...
     HJIPDE_solve(data0, tau, schemeData, 'set', HJIextraArgs);
+
+% Solve round 2
+HJIextraArgs.keepLast = false;
+[data, tau2, ~] = ...
+    HJIPDE_solve(data, tMax:dt/2:(tMax+dt/2), schemeData, 'set', HJIextraArgs);
 
 % Save data
 disp('Saving workspace')
@@ -194,7 +199,7 @@ extraArgs.saveFile = true;
 extraArgs.lambdaDiscount = HJIextraArgs.lambdaDiscount;
 extraArgs.pdDims = pdDims;
 
-
+%% generate Table
 recast_to_new_grid = false;
 
 if recast_to_new_grid

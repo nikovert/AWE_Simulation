@@ -19,7 +19,7 @@ function [x0_sim,u0_sim,  act, aeroModel, base_windspeed, constr,...
 simInit.TSIM = 500; 
 simInit.Ts_power_conv_check = 0.1; %Power convergence check sample time
 simInit.power_conv_threshold = 500; 
-simInit.Ts_vis = 5;
+simInit.Ts_vis = 1;
 params.a_booth = 0.6; % 0.6
 params.b_booth = 200; % 200 also fine
 params.phi0_booth =  30*pi/180;
