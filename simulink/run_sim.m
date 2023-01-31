@@ -51,6 +51,10 @@ load([pathstr, '/../hj_reachability/awe/tables.mat'])
  
 random_seed = [ 24335       17059       17670        1747]; %random_seed_mat(idx,:); 
 save('random_seed.mat', 'random_seed'); 
+%% Define Drag coefficients based on Rapp 2019
+P_AP2.initAircraft.alpha          = [-5     0       5       10      15      20      25      30      35];
+P_AP2.initAircraft.wing_cL_Static = [0.3    0.8     1.2     1.5     1.5     1.5     1.5     1.5     1.4];
+P_AP2.initAircraft.wing_cD_Static = [0.05   0.6     0.1     0.15    2.7     0.42    0.65    0.85    1];
 %% Ready to go...
 idx =3;  
 simInit.perturbed_aero_flag = 0;
@@ -63,11 +67,6 @@ if make_video
     addpath(genpath('video')); 
     makevideo
 end
-%% Define Drag coefficients based on Rapp 2019
-P_AP2.initAircraft.alpha          = [-5     0       5       10      15      20      25      30      35];
-P_AP2.initAircraft.wing_cL_Static = [0.3    0.8     1.2     1.5     1.5     1.5     1.5     1.5     1.4];
-P_AP2.initAircraft.wing_cD_Static = [0.05   0.6     0.1     0.15    2.7     0.42    0.65    0.85    1];
-
 %% Plotting
 number_of_clycles = 3;
 if ~isinf(number_of_clycles) && ~simOut.rupture.Data
