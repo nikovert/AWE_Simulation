@@ -45,14 +45,14 @@ h_tau   = 250/h0;
 Va      = 31/v0;
 chi_a   = -0.4470/a0;
 gamma_a = 0.5205/a0;
-tether_diff = 0.0003;
-initialState = [s, sigma, h_tau, Va, chi_a, gamma_a, tether_diff]';
+Ft      = 1.600; % in kN
+initialState = [s, sigma, h_tau, Va, chi_a, gamma_a, Ft]';
 
 %% Grid 
 %                   s,sigma,   h_tau,     Va,     chi_a,    gamma_a,  tether_diff (not normalised)
-N        = [       27;    7;       8;      9;        10;         11;    13];
-grid_min = [     0/a0;  -45;  200/h0;  20/v0;    -pi/a0;   -pi/3/a0; -1e-3]; 
-grid_max = [  2*pi/a0;   45;  750/h0;  40/v0;     pi/a0;    pi/3/a0;  7e-3];
+N        = [       3;    3;       3;      3;        3;         3;   13];
+grid_min = [     0/a0;  -45;  200/h0;  20/v0;    -pi/a0;   -pi/3/a0; 1.0]; 
+grid_max = [  2*pi/a0;   45;  750/h0;  40/v0;     pi/a0;    pi/3/a0; 2.0];
 pdDims   = [1 5];
 process  = true;
 % N = N(1:end-1);
@@ -78,28 +78,7 @@ Lem.b = 200;
 Lem.phi0 = 1;
 sys.Lem = Lem;
 %% Set up mask for set K
-alpha   = 0.0;
-mu_a    = 0.0;
-u = {alpha, mu_a};
-[~, ~, max_F_tether] = sys.dynamics(0, grid.xs, u);
-Ft_ground_norm = norm_cellVec(max_F_tether)/1e+03;
-clear max_F_tether
-
-mask_force = (Ft_ground_norm - sys.F_T_max)/max(abs(Ft_ground_norm(:) - sys.F_T_max));
-clear Ft_ground_norm
-
-% mask_bndry = -inf(size(mask_force));
-% for i = 1 : grid.dim
-%   if any(i==pdDims)
-%       continue
-%   end
-%   mask_bndry = max(mask_bndry, grid.xs{i} - grid.max(i));
-%   mask_bndry = max(mask_bndry, grid.min(i) - grid.xs{i});
-% end
-% 
-% mask = shapeIntersection(mask_force,mask_bndry);
-mask = mask_force;
-clear mask_force
+mask = (grid.xs{end} - sys.F_T_max)/max(abs(grid.xs{end}(:) - sys.F_T_max));
 
 assert(eval_u(grid, mask, initialState(1:grid.dim), 'linear') <= 0);
 

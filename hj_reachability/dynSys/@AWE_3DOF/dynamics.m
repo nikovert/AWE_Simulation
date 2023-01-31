@@ -24,7 +24,7 @@ function [dx, F_rest, max_F_tether] = dynamics(obj, ~, x, u, d)
 %     va      - apparent wind speed in the A_bar (rotated aerodynamic frame) frame
 %     chi_a   - course angle in the A_bar frame
 %     gamma_a - path angle in the A_bar frame
-%     l_s     - tether segment length
+%     Ft      - tether force norm
 %
 % INPUTS
 %     alpha_a - aerodynamic bank angle defined in the A_bar frame
@@ -80,11 +80,7 @@ else
     [long, lat, t_tau, t_rot_tau, t_W, t_rot_W] = getLongLat(s, sigma, obj.h0 * h_tau, extraArgs);
 end
 
-if length(x) > 6
-    tether_diff  = x{7};
-else
-    tether_diff = 0;
-end
+Ft  = x{7}* 1000; % from kN to N
 
 alpha    = u{1};
 beta     = 0;
@@ -223,15 +219,19 @@ h_tau_dot = obj.h_tau_dot;
 % %     end
 % end
 %% Calculate Tether forces
-% if num || (isempty(obj.pos_W))
-%     [pos_W_x,pos_W_y,pos_W_z] = sph2cart(long,lat,obj.h0*h_tau);
-%     pos_W{1,1} = pos_W_x;
-%     pos_W{2,1} = pos_W_y;
-%     pos_W{3,1} = pos_W_z;
-%     obj.pos_W = pos_W;
-% else
-%     pos_W = obj.pos_W;
-% end
+if num || (isempty(obj.F_t_W))
+    [pos_W_x,pos_W_y,pos_W_z] = sph2cart(long,lat,obj.h0*h_tau);
+    pos_W{1,1} = pos_W_x;
+    pos_W{2,1} = pos_W_y;
+    pos_W{3,1} = pos_W_z;
+    pos_W_norm = norm_cellVec(pos_W);
+    F_t_W{1,1} = -pos_W_x./pos_W_norm .* Ft;
+    F_t_W{2,1} = -pos_W_y./pos_W_norm .* Ft;
+    F_t_W{3,1} = -pos_W_z./pos_W_norm .* Ft;
+    obj.F_t_W = F_t_W;
+else
+    F_t_W = obj.F_t_W;
+end
 %% Calculate Aerodynamic Forces and Moments
 F_a_B = mult_cellMatrix({0.5 * obj.AIRCRAFT.S_ref * 1.225*(va*obj.v0).^2}, {Cx;Cy; Cz});
 F_a_A = mult_cellMatrix(M_AB, F_a_B); % checked mon 16 Aug
@@ -245,21 +245,20 @@ F_a_A = mult_cellMatrix(M_AB, F_a_B); % checked mon 16 Aug
 %         l_s_dot = h_tau_dot./(obj.T.n_t_p+1);
 %         max_F_tether = 0;
 %     else
-        x_W{1} = long;
-        x_W{2} = lat;
-        x_W{3} = h_tau*obj.h0;
-        x_W{4} = long_dot * obj.v0/obj.h0;
-        x_W{5} = lat_dot * obj.v0/obj.h0;
-        x_W{6} = h_tau_dot*obj.v0;
-        x_W{7} = tether_diff;
-        if nargout > 2
-            [f_kite_G, ~, max_F_tether] = obj.tether_forces(x_W);
-        else
-            [f_kite_G, ~] = obj.tether_forces(x_W);
-        end
-        F_t_W = mult_cellMatrix({-1}, f_kite_G);
+%         x_W{1} = long;
+%         x_W{2} = lat;
+%         x_W{3} = h_tau*obj.h0;
+%         x_W{4} = long_dot * obj.v0/obj.h0;
+%         x_W{5} = lat_dot * obj.v0/obj.h0;
+%         x_W{6} = h_tau_dot*obj.v0;
+%         x_W{7} = tether_diff;
+%         if nargout > 2
+%             [f_kite_G, ~, max_F_tether] = obj.tether_forces(x_W);
+%         else
+%             [f_kite_G, ~] = obj.tether_forces(x_W);
+%         end
+%         F_t_W = mult_cellMatrix({-1}, f_kite_G);
 %     end
-    
 %     F_t_W_norm = norm_cellVec(F_t_W);
 %     F_t_W = mult_cellMatrix(element_div_cellMatrix(F_t_W, 1e-99+F_t_W_norm), {min(F_t_W_norm, obj.F_T_max*1e+03)});
 %     
@@ -276,10 +275,14 @@ F_a_A = mult_cellMatrix(M_AB, F_a_B); % checked mon 16 Aug
 %     F_rest = obj.F_rest;
 % end
 %tether_diff_dot = cell2mat(obj.final_seg_diff_dot) - l_s_dot;
-tether_diff_dot = d{1};
-if obj.ignoreTetherDiff
-    tether_diff_dot = 0;
-end
+
+ls = h_tau; % approximate tether length of taught tether
+rw = obj.rw; % winch radius
+omega = d{1};
+A = (pi/4*obj.T.d_tether^2);
+Ft_dot = A .* obj.T.E./ls .* (h_tau_dot - rw .* omega) - rw./ls .* Ft .* omega;
+Ft_dot = Ft_dot/1000; % from N/s to kN/s
+
 %% Tether Drag
 % va_tau = mult_cellMatrix(M_tauW, mult_cellMatrix(M_WO,v_a_O));
 % Fd_tau = mult_cellMatrix({-1/8*1.225*obj.T.CD_tether*pos_W_norm*T.d_tether* sqrt( va_tau{1}.^2 + va_tau{2}.^2 )} , {Va_tau{1}; Va_tau{2}; 0});
@@ -323,7 +326,7 @@ if num
     dx(5,:) = chi_a_dot/obj.a0;
     dx(6,:) = gamma_a_dot/obj.a0;
     if(obj.nx > 6)
-        dx(7,:) = tether_diff_dot * obj.v0/obj.h0;
+        dx(7,:) = Ft_dot * obj.v0/obj.h0;
     end
     if ~isreal(dx)
         warning('complex dx')
@@ -342,7 +345,7 @@ else
     dx{5} = chi_a_dot/obj.a0;
     dx{6} = gamma_a_dot/obj.a0;
     if(obj.nx > 6)
-        dx{7} = tether_diff_dot* obj.v0/obj.h0;
+        dx{7} = Ft_dot * obj.v0/obj.h0;
     end
 end
 

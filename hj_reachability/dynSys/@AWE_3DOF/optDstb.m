@@ -28,8 +28,8 @@ end
 if ~iscell(deriv)
   deriv = num2cell(deriv);
 end
-d1 = -sign(deriv{4}) .* obj.max_tether_diff_dot;
-
+%d1 = -sign(deriv{4}) .* obj.max_tether_diff_dot;
+d1 = zeros(size(deriv{4}));
 %% Calculate d2-d4 
 if isempty(obj.curve_direction)
     direction = 1;

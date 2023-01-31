@@ -18,6 +18,7 @@ classdef AWE_3DOF < DynSys
         ENVMT           % - environmental variable
         AIRCRAFT        % - aircarft variables
         T               % - tether properties 
+        rw = 0.1        % - winch radius 
         base_windspeed  % - wind speed at 6m
         Ft_set          % - set tether force (used for simpliefied tether dynamics)
         v_ro_set        % - set reelout speed
@@ -64,6 +65,7 @@ classdef AWE_3DOF < DynSys
         F_rest
         F_tether_drag_Abar
         pos_W
+        F_t_W
         long_dot
         lat_dot
         h_tau_dot

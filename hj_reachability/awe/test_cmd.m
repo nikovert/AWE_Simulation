@@ -34,7 +34,7 @@ h_tau   = 250/h0;
 Va      = 31/v0;
 chi_a   = 1.0407/a0;
 gamma_a = 0.5697/a0;
-tether_diff = 3e-3;
+Ft      = 1.600; % in kN
 
 Lem.a       = 120;
 Lem.b       = 200;
@@ -44,9 +44,9 @@ if LongLatState
     extraArgs.direction = direction;
     extraArgs.Lem = Lem;
     [long, lat] = getLongLat(s* a0, sigma, h0 * h_tau, extraArgs);
-    initialState = [long/a0, lat/a0, h_tau, Va, chi_a, gamma_a, tether_diff]';
+    initialState = [long/a0, lat/a0, h_tau, Va, chi_a, gamma_a, Ft]';
 else
-    initialState = [s, sigma, h_tau, Va, chi_a, gamma_a, tether_diff]';
+    initialState = [s, sigma, h_tau, Va, chi_a, gamma_a, Ft]';
 end
 sys = AWE_3DOF(initialState);
 sys.h0 = h0;    
