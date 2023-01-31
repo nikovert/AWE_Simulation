@@ -14,7 +14,7 @@
 % :Author: Nikolaus Vertovec (nikolaus.vertovec@eng.ox.ac.uk)
 % :Adapted from: Sebastian Rapp (s.rapp@tudelft.nl) and Dylan Eijkelhof (d.eijkelhof@tudelft.nl)
 
-
+rmpath('../hj_reachability')
 clear 
 close all
 clc
@@ -39,6 +39,7 @@ params.direction = -1;
 
 Ft_max = 1870;
 safety_controller = true;
+stopOnRupture = false;
 
 turbulence = true;
 

@@ -878,7 +878,7 @@ if (isfield(extraArgs, 'visualize') && isstruct(extraArgs.visualize))...
         set(gca,'LineWidth',extraArgs.visualize.lineWidth)
     end
     
-    drawnow;
+    %drawnow;
     
     % If we're making a video, grab the frame
     if isfield(extraArgs, 'makeVideo') && extraArgs.makeVideo
@@ -980,6 +980,7 @@ end
 
 %% Initialize PDE solution
 data0size = size(data0);
+uses_single = true;
 
 if numDims(data0) == gDim
     % New computation
@@ -987,6 +988,9 @@ if numDims(data0) == gDim
         data = data0;
     elseif lowMemory
         data = distributed(single(data0));
+    elseif uses_single
+        data = zeros([data0size(1:gDim) length(tau)], 'single');
+        data(clns{:}, 1) = single(data0);
     else
         data = zeros([data0size(1:gDim) length(tau)], class(data0));
         data(clns{:}, 1) = data0;
@@ -999,6 +1003,9 @@ elseif numDims(data0) == gDim + 1
         data = data0(clns{:}, data0size(end));
     elseif lowMemory
         data = single(data0(clns{:}, data0size(end)));
+    elseif uses_single
+        data = zeros([data0size(1:gDim) length(tau)], class(data0), 'single');
+        data(clns{:}, 1:data0size(end)) = single(data0);
     else
         data = zeros([data0size(1:gDim) length(tau)], class(data0));
         data(clns{:}, 1:data0size(end)) = data0;
@@ -1049,7 +1056,11 @@ for i = istart:length(tau)
     else
         y0 = data(clns{:}, i-1);
     end
-    y = y0(:);
+    if uses_single
+        y = double(y0(:));
+    else
+        y = y0(:);
+    end
     
     
     tNow = tau(i-1);
@@ -1245,6 +1256,8 @@ for i = istart:length(tau)
             data = cat(g.dim+1, data, reshape(y, g.shape));
         end
         
+    elseif uses_single
+        data(clns{:}, i) = single(data_i);
     else
         data(clns{:}, i) = data_i;
     end
