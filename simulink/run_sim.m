@@ -1,4 +1,4 @@
-% Copyright (C) 2021  Nikolaus Vertovec
+% Copyright (C) 2023  Nikolaus Vertovec
 % 
 %     This program is free software: you can redistribute it and/or modify
 %     it under the terms of the GNU General Public License as published by
@@ -10,7 +10,7 @@
 %     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %     GNU General Public License for more details.
 %
-% :Revision: 14-December-2021
+% :Revision: 31-January-2021
 % :Author: Nikolaus Vertovec (nikolaus.vertovec@eng.ox.ac.uk)
 % :Adapted from: Sebastian Rapp (s.rapp@tudelft.nl) and Dylan Eijkelhof (d.eijkelhof@tudelft.nl)
 
@@ -38,7 +38,7 @@ lat_init = 80*pi/180;
 params.direction = -1;
 
 Ft_max = 1870;
-safety_controller = true;
+safety_controller = false;
 stopOnRupture = false;
 
 turbulence = true;
@@ -69,7 +69,7 @@ if make_video
 end
 %% Plotting
 number_of_clycles = 3;
-if ~isinf(number_of_clycles) && ~simOut.rupture.Data
+if ~isinf(number_of_clycles) % && ~simOut.rupture.Data
     % Power and flight path for last pumping cycle
     P_mech_last_cycle = extractSignalOfLastCycle2(simOut.P_mech, ...
         unique(simOut.cycle_signal_counter.Data), simInit, number_of_clycles);

@@ -1,4 +1,4 @@
-% Copyright (C) 2021  Nikolaus Vertovec
+% Copyright (C) 2023  Nikolaus Vertovec
 % 
 %     This program is free software: you can redistribute it and/or modify
 %     it under the terms of the GNU General Public License as published by
@@ -6,17 +6,17 @@
 %     (at your option) any later version.
 % 
 %     This program is distributed in the hope that it will be useful,
-%     but WITHOUT ANY WARRANTY; without even the implied warranty of
+%     but WITHOUT ANY WARRANTY; without even the iFTmplied warranty of
 %     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %     GNU General Public License for more details.
 %
-% :Revision: 14-December-2021
+% :Revision: 31-January-2023
 % :Author: Nikolaus Vertovec (nikolaus.vertovec@eng.ox.ac.uk)
 % :Adapted from: Sebastian Rapp (s.rapp@tudelft.nl)
 
 function [x0_sim,u0_sim,  act, aeroModel, base_windspeed, constr,...
     ENVMT, P_AP2, simInit, T, winchParameter,params] = initAllSimParams(lat_in)
-simInit.TSIM = 500; 
+simInit.TSIM = 1200; 
 simInit.Ts_power_conv_check = 0.1; %Power convergence check sample time
 simInit.power_conv_threshold = 500; 
 simInit.Ts_vis = 5;
@@ -29,8 +29,8 @@ params.control_delay = 0.015;
 params.winch_control_delay = 0.015; 
 params.winch_meas_delay = 0.015; 
 simInit.skipT = 60; 
-params.Ft_set_traction = 1500; 
-params.Ft_set_retraction = 500; %500; 
+params.Ft_set_traction = 1200; 
+params.Ft_set_retraction = 100; %500; 
 params.winch_control_filter_w0 =1*2*pi; 
 params.winch_control_filter_w0 = 2*2*pi; 
 params.phi0_dot = 0.1; 
@@ -43,7 +43,7 @@ simInit.perturbed_ft_moment_flag = 0;
 simInit.complex_tether_flag = 1; 
 
 params.vr_mean_min = 2; 
-params.Ft_set_traction_low = 1600; 
+params.Ft_set_traction_low = 1000; 
 
 u0_sim = [-0.0023   -0.0922   -0.0081 1800]';
 x0_sim = [31.3466         0    0.1222    0.1466    0.0429   -1.8953    0.0176   -0.0967    0.0148   -0.0000    1.3963  250.0000]';
@@ -300,7 +300,7 @@ params.ki_winch= 0.0258;
 params.s_retrac_trigger = pi/2;
 
 params.l_tether_max= 700;
-params.l_tether_min= 400;
+params.l_tether_min= 300;
 
 % Guidance traction phase
 params.kp_delta_course= 0.0500;
@@ -319,12 +319,12 @@ params.Ki_gamma_k_traction= 0.1000;
 % Retraction phase 
 params.vamin_max = 30; 
 params.vamin = 25; 
-params.vamax = 35; 
+params.vamax = 45; 
 params.vamax_min = 30; 
 params.KpVaControl = 3; 
 
 % maximum shortest tether length
-params.l_t_min_max = 400; 
+params.l_t_min_max = 300; 
 
 %% Initializing attitudes etc 
 % Initializing
