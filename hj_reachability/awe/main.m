@@ -1,4 +1,4 @@
-% Copyright (C) 2021  Nikolaus Vertovec
+% Copyright (C) 2023  Nikolaus Vertovec
 % 
 %     This program is free software: you can redistribute it and/or modify
 %     it under the terms of the GNU General Public License as published by
@@ -10,7 +10,7 @@
 %     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %     GNU General Public License for more details.
 %
-% :Revision: 14-December-2021
+% :Revision: 01-February-2021
 % :Author: Nikolaus Vertovec (nikolaus.vertovec@eng.ox.ac.uk)
 
 %% Readme
@@ -50,7 +50,7 @@ initialState = [s, sigma, h_tau, Va, chi_a, gamma_a, Ft]';
 
 %% Grid 
 %                   s,sigma,   h_tau,     Va,     chi_a,    gamma_a,  tether_diff (not normalised)
-N        = [       3;    3;       3;      3;        3;         3;   13];
+N        = [       27;    7;       8;      9;        10;         11;  13];
 grid_min = [     0/a0;  -45;  200/h0;  20/v0;    -pi/a0;   -pi/3/a0; 1.0]; 
 grid_max = [  2*pi/a0;   45;  750/h0;  40/v0;     pi/a0;    pi/3/a0; 2.0];
 pdDims   = [1 5];
