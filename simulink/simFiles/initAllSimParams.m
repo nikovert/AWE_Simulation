@@ -29,8 +29,8 @@ params.control_delay = 0.015;
 params.winch_control_delay = 0.015; 
 params.winch_meas_delay = 0.015; 
 simInit.skipT = 60; 
-params.Ft_set_traction = 1200; 
-params.Ft_set_retraction = 100; %500; 
+params.Ft_set_traction = 1300; 
+params.Ft_set_retraction = 500; %500; 
 params.winch_control_filter_w0 =1*2*pi; 
 params.winch_control_filter_w0 = 2*2*pi; 
 params.phi0_dot = 0.1; 
@@ -43,7 +43,7 @@ simInit.perturbed_ft_moment_flag = 0;
 simInit.complex_tether_flag = 1; 
 
 params.vr_mean_min = 2; 
-params.Ft_set_traction_low = 1000; 
+params.Ft_set_traction_low = 800; 
 
 u0_sim = [-0.0023   -0.0922   -0.0081 1800]';
 x0_sim = [31.3466         0    0.1222    0.1466    0.0429   -1.8953    0.0176   -0.0967    0.0148   -0.0000    1.3963  250.0000]';
