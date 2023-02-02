@@ -124,7 +124,7 @@ end
 % Put grid and dynamic systems into schemeData
 schemeData.grid = grid;
 schemeData.dynSys = sys;
-schemeData.accuracy = 'medium'; %set accuracy
+schemeData.accuracy = 'high'; %set accuracy
 schemeData.uMode = 'min';
 schemeData.dMode = 'max';
 schemeData.dissType = 'local';
@@ -144,8 +144,8 @@ if visualize_contour
     HJIextraArgs.visualize.deleteLastPlot = true; %delete previous plot as you update
 
     % 2D slice
-    HJIextraArgs.visualize.plotData.plotDims = [1, 1, zeros(1, grid.dim-2)]; %plot r, vt
-    HJIextraArgs.visualize.plotData.projpt = initialState(3:grid.dim)';
+    HJIextraArgs.visualize.plotData.plotDims = [zeros(1, grid.dim-3), 1, 1, 0]; %plot r, vt
+    HJIextraArgs.visualize.plotData.projpt = initialState(~HJIextraArgs.visualize.plotData.plotDims)';
 else
     HJIextraArgs.visualize = false;
 end

@@ -41,7 +41,7 @@ Va      = 31/v0;
 chi_a   = 1.0407/a0;
 gamma_a = 0.5697/a0;
 Ft      = 1.600; % in kN
-v_reelout = 3; % constant reeloutspeed of 3m/s
+v_reelout = 30; % constant reeloutspeed of 3m/s
 
 Lem.a       = 120;
 Lem.b       = 200;
@@ -83,7 +83,7 @@ targetDistanceArgs.direction    = direction;
 sys.x = initialState;  
 sys.xhist = [];
 dtSmall = 0.01;
-t_end = 6.5;
+t_end = 30;
 
 targetDistanceArgs.fig_handle = figure(targetDistanceArgs.fig_num); 
 % Create axes
@@ -145,7 +145,7 @@ for i = 1:iterations
     pos_before = [pos_W_x,pos_W_y,pos_W_z];
     if use_value_fcn
         u = get_path_u(sys.x', ...
-            alpha_options, mu_options, alpha_max, grid_min, grid_max, dx, mu_max, I_table, alpha_min, mu_min);
+            alpha_options, mu_options, alpha_max, grid_min, grid_max, dx, mu_max, I_table, alpha_min, mu_min, alpha_table, mu_table);
         d = [v_reelout; zeros(3,1)];
         sys.updateState(u, dtSmall, sys.x, d);
     else

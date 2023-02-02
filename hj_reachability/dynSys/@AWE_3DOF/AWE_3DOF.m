@@ -35,10 +35,10 @@ classdef AWE_3DOF < DynSys
         % The maximum angle
         alpha_max = 0.1745
         alpha_min = -0.1047
-        mu_max = 1.0472
-        mu_min = -1.0472
-        alpha_options = 5; %WARNING MUST UPDATE OPTCTRL IF CHANGED HERE
-        mu_options = 9;
+        mu_max = 0.8; %1.0472
+        mu_min = -0.8; % -1.0472
+        alpha_options = 10; %WARNING MUST UPDATE OPTCTRL IF CHANGED HERE
+        mu_options = 15;
         
         % remove tether forces for testing purposes
         skipTether = false
@@ -140,7 +140,7 @@ classdef AWE_3DOF < DynSys
             AIRCRAFT.d_tether= 0.0025;
             AIRCRAFT.rho_tether= 0.0046;
             AIRCRAFT.Cd_tether= 1.2000;
-            AIRCRAFT.rho_air= 1.2250;
+            AIRCRAFT.rho_air = 1.2250;
             AIRCRAFT.Cx_0_0= -0.0293;
             AIRCRAFT.Cx_0_alpha= 0.4784;
             AIRCRAFT.Cx_0_alpha2= 2.5549;

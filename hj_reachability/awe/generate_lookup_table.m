@@ -118,7 +118,9 @@ end
 max_tether_diff_dot = dynSys.max_tether_diff_dot;
 
 if isfield(extraArgs, 'saveFile') && extraArgs.saveFile
-    save('tables.mat', 'dataf_bool', 'I_table', 'alpha_options', 'mu_options', 'alpha_max', 'alpha_min', 'mu_max', 'mu_min', 'grid_min', 'grid_max', 'dx', 'max_tether_diff_dot', '-v7.3');
+    save('tables.mat', 'alpha_table', 'mu_table','dataf_bool', 'I_table', 'alpha_options', 'mu_options', 'alpha_max', 'alpha_min', 'mu_max', 'mu_min', 'grid_min', 'grid_max', 'dx', 'max_tether_diff_dot', '-v7.3');
+
+    % save('tables.mat', 'dataf_bool', 'I_table', 'alpha_options', 'mu_options', 'alpha_max', 'alpha_min', 'mu_max', 'mu_min', 'grid_min', 'grid_max', 'dx', 'max_tether_diff_dot', '-v7.3');
 end
 end
 

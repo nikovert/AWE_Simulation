@@ -1,4 +1,4 @@
-function u = get_path_u(x, alpha_options, mu_options, alpha_max, grid_min, grid_max, dx, mu_max, I_table, alpha_min, mu_min)
+function u = get_path_u(x, alpha_options, mu_options, alpha_max, grid_min, grid_max, dx, mu_max, I_table, alpha_min, mu_min, alpha_table, mu_table)
     boundary_min = grid_min' > x;
     boundary_max = grid_max' < x;
     if any(boundary_min)
@@ -12,8 +12,12 @@ function u = get_path_u(x, alpha_options, mu_options, alpha_max, grid_min, grid_
     I = eval_u(grid_min, grid_max, dx, I_table, x, 'nearest');
     [I1,I2] = ind2sub([alpha_options, mu_options], I);
     
-    alpha_a = alpha_min + (I1-1)/(alpha_options-1) * (alpha_max - alpha_min);
-    mu_a    = mu_min    + (I2-1)/(mu_options   -1) * (mu_max    - mu_min);
+    alpha_a_I = alpha_min + (I1-1)/(alpha_options-1) * (alpha_max - alpha_min);
+    mu_a_I    = mu_min    + (I2-1)/(mu_options   -1) * (mu_max    - mu_min);
+
+    alpha_a = eval_u(grid_min, grid_max, dx, alpha_table, x, 'nearest');
+    mu_a = eval_u(grid_min, grid_max, dx, mu_table, x, 'nearest');
+
     u = [alpha_a, mu_a];
 end
 

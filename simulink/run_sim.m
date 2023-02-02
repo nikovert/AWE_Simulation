@@ -39,7 +39,7 @@ params.direction = -1;
 
 Ft_max = 1870;
 params.v_reel_retract = constr.winchParameter.v_min;
-safety_controller = false;
+safety_controller = true;
 stopOnRupture = false;
 
 turbulence = true;
