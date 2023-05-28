@@ -40,7 +40,7 @@ v0 = 1;
 a0 = 1;
 
 s       = 4*pi/3/a0;
-sigma   = 0;
+sigma   = 20;
 h_tau   = 250/h0;
 Va      = 31/v0;
 chi_a   = -0.4470/a0;
@@ -98,8 +98,11 @@ clear Ft_ground_norm
 % end
 % 
 % mask = shapeIntersection(mask_force,mask_bndry);
+mask_bndry = (grid.xs{4} - (grid.max(4)-grid.dx(4)))...
+    /max(abs(grid.xs{4} - (grid.max(4)-grid.dx(4))), [], 'all');% limit max airspeed
+mask = shapeIntersection(mask_force,mask_bndry);
 mask = mask_force;
-clear mask_force
+clear mask_force mask_bndry
 
 assert(eval_u(grid, mask, initialState(1:grid.dim), 'linear') <= 0);
 
@@ -165,8 +168,8 @@ if visualize_contour
     HJIextraArgs.visualize.deleteLastPlot = true; %delete previous plot as you update
 
     % 2D slice
-    HJIextraArgs.visualize.plotData.plotDims = [1, 1, zeros(1, grid.dim-2)]; %plot r, vt
-    HJIextraArgs.visualize.plotData.projpt = initialState(3:grid.dim)';
+    HJIextraArgs.visualize.plotData.plotDims = [zeros(1, grid.dim-3), 1, 1, 0]; %plot r, vt
+    HJIextraArgs.visualize.plotData.projpt = initialState([1 2 3 4 7])';
 else
     HJIextraArgs.visualize = false;
 end

@@ -163,14 +163,25 @@ p_C_W_norm = cell(checks, 1);
 tmp = cell(checks, 1);
 delta = cell(checks, 1);
 for i = 1:checks
-    [ sol{i},p_C_P{i}, nonconverged_points{i}] = getTargetOnBoothNewton2(Lem, pos_P, mod(s_old+(i-1)/checks*2*pi, 2*pi), h_tau, direction);
-    p_C_W{i} = mult_cellMatrix(M_WP , p_C_P{i}); %LissajousFigure8Following Line 61
+    % [ sol{i},p_C_P{i}, nonconverged_points{i}] = getTargetOnBoothNewton2(Lem, pos_P, mod(s_old+(i-1)/checks*2*pi, 2*pi), h_tau, direction);
+    sol{i} = state{1};
+    long_path = Lem.b .* sin(sol{i}) ./ ( 1+(Lem.a./Lem.b .* cos(sol{i})).^2 );
+    lat_path  = Lem.a .* sin(sol{i}) .* cos(sol{i}) ./ ( 1+(Lem.a./Lem.b .* cos(sol{i})).^2 ) ;
+    
+    [pos_C_P_x,pos_C_P_y,pos_C_P_z] = sph2cart(long_path,lat_path,h_tau);
+    p_C_P = {pos_C_P_x;pos_C_P_y;pos_C_P_z};
+    
+    p_C_W{i} = mult_cellMatrix(M_WP , p_C_P); %LissajousFigure8Following Line 61
 
     p_C_W_norm{i} = norm_cellVec(p_C_W{i});
     % using the definition of the arc length on the unit sphere
     tmp{i} = (p_kite_W{1} .* p_C_W{i}{1} + p_kite_W{2} .* p_C_W{i}{2} + p_kite_W{3} .* p_C_W{i}{3})./(p_kite_W_norm .* p_C_W_norm{i});
     delta{i} = acos( min( max( tmp{i}, -1),1 ) );
 end
+
+
+
+
 p_kite_W = {p_kite_W{1} .* h_tau; p_kite_W{2} .* h_tau; p_kite_W{3} .* h_tau};
 
 %%
